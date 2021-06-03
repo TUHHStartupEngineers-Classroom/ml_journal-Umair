@@ -10,9 +10,8 @@
 
 
 
-<meta name="date" content="2020-01-06" />
 
-<title>03 Automated Machine Learning with H20</title>
+<title>03_ml_aut.knit</title>
 
 <script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -30,15 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
-<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -223,73 +216,7 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
-<style type="text/css">
-.code-folding-btn { margin-bottom: 4px; }
-</style>
 
-
-
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
 
 
 
@@ -299,16 +226,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -371,23 +288,16 @@ div.tocify {
 
 <div id="header">
 
-<div class="btn-group pull-right float-right">
-<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
-<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
-<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
-</ul>
-</div>
 
 
-
-<h1 class="title toc-ignore">03 Automated Machine Learning with H20</h1>
-<h4 class="date">2020-01-06</h4>
 
 </div>
 
 
-<p>1 Automated Machine Learning with H20 (I)</p>
+<div id="automated-machine-learning-with-h20" class="section level2">
+<h2>#03 Automated Machine Learning with H20</h2>
+<p>title: “03 Automated Machine Learning with H20” date: “2020-01-06” output: html_document: toc: true toc_float: true df_print: paged collapsed: false number_sections: true toc_depth: 3 code_folding: hide —</p>
+<p>##1 Automated Machine Learning with H20 (I)</p>
 <p>Question #1: Compensation Features What can you deduce about the interaction between Monthly Income and Attrition? c. Those that are leaving have a lower Monthly Income</p>
 <p>Question #2:Compensation Features What can you deduce about the interaction between Percent Salary Hike and Attrition? d. It’s difficult to deduce anything based on the visualization</p>
 <p>Question #3:Compensation Features What can you deduce about the interaction between Stock Option Level and Attrition? c.It’s difficult to deduce anything based on the visualization</p>
@@ -398,7 +308,7 @@ div.tocify {
 <p>Question #8:Training and Education What can you deduce about the interaction between Training Times Last Year and Attrition b. People that leave tend to have less annual trainings</p>
 <p>Question #9:Time-Based Features What can you deduce about the interaction between Years At Company and Attrition b. People that leave tend to have less working years at the company</p>
 <p>Question #10:Time-Based Features What can you deduce about the interaction between Years Since Last Promotion and Attrition? c. It’s difficult to deduce anything based on the visualization</p>
-<p>2 Automated Machine Learning with H20 (II))</p>
+<p>##2 Automated Machine Learning with H20 (II))</p>
 <pre class="r"><code>library(tidyverse)
 library(readxl)
 library(h2o)
@@ -1196,11 +1106,10 @@ predictions_tbl_2</code></pre>
 </div>
 <pre class="r"><code>################### end ######################</code></pre>
 <p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
-
-
-
 </div>
-</div>
+
+
+
 
 </div>
 
@@ -1232,38 +1141,7 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
-});
-</script>
 
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

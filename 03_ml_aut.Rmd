@@ -1,3 +1,4 @@
+#03 Automated Machine Learning with H20
 ---
 title: "03 Automated Machine Learning with H20"
 date: "2020-01-06"
@@ -16,7 +17,7 @@ output:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
 
-1 Automated Machine Learning with H20 (I)
+##1 Automated Machine Learning with H20 (I)
 
 
 Question #1: Compensation Features What can you deduce about the interaction between Monthly Income and Attrition?
@@ -50,7 +51,7 @@ b. People that leave tend to have less working years at the company
 Question #10:Time-Based Features What can you deduce about the interaction between Years Since Last Promotion and Attrition?
 c. It's difficult to deduce anything based on the visualization
 
-2 Automated Machine Learning with H20 (II))
+##2 Automated Machine Learning with H20 (II))
 
 
 ```{r}
