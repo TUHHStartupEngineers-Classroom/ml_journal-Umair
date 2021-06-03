@@ -12,7 +12,7 @@
 
 <meta name="date" content="2020-01-06" />
 
-<title>03 Automated Machine Learning with H20</title>
+<title>2 Automated Machine Learning with H20 (II))</title>
 
 <script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -369,36 +369,22 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">03 Automated Machine Learning with H20</h1>
+<h1 class="title toc-ignore">2 Automated Machine Learning with H20 (II))</h1>
 <h4 class="date">2020-01-06</h4>
 
 </div>
 
 
-<p><strong>IMPORTANT:</strong> You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.</p>
-<p>This is an <code>.Rmd</code> file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header.</p>
-<div id="my-first-post" class="section level1" number="1">
-<h1 number="1"><span class="header-section-number">1</span> My first post</h1>
-<p>Last compiled: 2021-06-03</p>
-<p>Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left.</p>
-<div id="second-level-header" class="section level2" number="1.1">
-<h2 number="1.1"><span class="header-section-number">1.1</span> Second level header</h2>
-<p>You can add more headers by adding more hashtags. These won’t be put into the table of contents</p>
-<div id="third-level-header" class="section level3" number="1.1.1">
-<h3 number="1.1.1"><span class="header-section-number">1.1.1</span> third level header</h3>
-<p>Here’s an even lower level header</p>
-</div>
-</div>
-</div>
-<div id="my-second-post-note-the-order" class="section level1" number="2">
-<h1 number="2"><span class="header-section-number">2</span> My second post (note the order)</h1>
-<p>Last compiled: 2021-06-03</p>
-<p>I’m writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom</p>
-</div>
-<div id="adding-r-stuff" class="section level1" number="3">
-<h1 number="3"><span class="header-section-number">3</span> Adding R stuff</h1>
-<p>So far this is just a blog where you can write in plain text and serve your writing to a webpage. One of the main purposes of this lab journal is to record your progress learning R. The reason I am asking you to use this process is because you can both make a website, and a lab journal, and learn R all in R-studio. This makes everything really convenient and in the same place.</p>
-<p>So, let’s say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:</p>
+<p>Question #1: Compensation Features What can you deduce about the interaction between Monthly Income and Attrition? c. Those that are leaving have a lower Monthly Income</p>
+<p>Question #2:Compensation Features What can you deduce about the interaction between Percent Salary Hike and Attrition? d. It’s difficult to deduce anything based on the visualization</p>
+<p>Question #3:Compensation Features What can you deduce about the interaction between Stock Option Level and Attrition? c.It’s difficult to deduce anything based on the visualization</p>
+<p>Question #4:Survey Results What can you deduce about the interaction between Environment Satisfaction and Attrition? c. It’s difficult to deduce anything based on the visualization</p>
+<p>Question #5:Survey Results What can you deduce about the interaction between Work Life Balance and Attrition b. Those that are leaving have higher density of 2’s and 3’s</p>
+<p>Question #6:Performance Data What Can you deduce about the interaction between Job Involvement and Attrition? d. It’s difficult to deduce anything based on the visualization</p>
+<p>Question #7:Work-Life Features What can you deduce about the interaction between Over Time and Attrition? b. The proportion of those staying that are working Over Time are high compared to those that are not staying</p>
+<p>Question #8:Training and Education What can you deduce about the interaction between Training Times Last Year and Attrition b. People that leave tend to have less annual trainings</p>
+<p>Question #9:Time-Based Features What can you deduce about the interaction between Years At Company and Attrition b. People that leave tend to have less working years at the company</p>
+<p>Question #10:Time-Based Features What can you deduce about the interaction between Years Since Last Promotion and Attrition? c. It’s difficult to deduce anything based on the visualization</p>
 <pre class="r"><code>library(tidyverse)
 library(readxl)
 library(h2o)
@@ -1196,7 +1182,6 @@ predictions_tbl_2</code></pre>
 </div>
 <pre class="r"><code>################### end ######################</code></pre>
 <p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
-</div>
 
 
 
