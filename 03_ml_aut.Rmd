@@ -9,15 +9,15 @@ output:
     collapsed: false
     number_sections: true
     toc_depth: 3
-    #code_folding: hide
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
----
-title: "1 Automated Machine Learning with H20 (I)"
----
+
+1 Automated Machine Learning with H20 (I)
+
 
 Question #1: Compensation Features What can you deduce about the interaction between Monthly Income and Attrition?
 c. Those that are leaving have a lower Monthly Income
@@ -50,9 +50,8 @@ b. People that leave tend to have less working years at the company
 Question #10:Time-Based Features What can you deduce about the interaction between Years Since Last Promotion and Attrition?
 c. It's difficult to deduce anything based on the visualization
 
----
-title: "2 Automated Machine Learning with H20 (II))"
----
+2 Automated Machine Learning with H20 (II))
+
 
 ```{r}
 library(tidyverse)
