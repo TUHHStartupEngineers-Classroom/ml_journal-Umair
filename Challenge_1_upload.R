@@ -1,53 +1,3 @@
----
-title: "01 Machine Learning Fundamentals"
-author: "Umair"
-date: "2021-06-01"
-output:
-  html_document:
-    toc: true
-    toc_float: true
-    df_print: paged
-    collapsed: false
-    number_sections: true
-    toc_depth: 3
-    #code_folding: hide
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
-```
-
-**IMPORTANT:** You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.
-
-This is an `.Rmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
-
-# My first post
-
-Last compiled: `r Sys.Date()`
-
-Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
-
-## Second level header
-
-You can add more headers by adding more hashtags. These won't be put into the table of contents
-
-### third level header
-
-Here's an even lower level header
-
-# My second post (note the order)
-
-Last compiled: `r Sys.Date()`
-
-I'm writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom
-
-# Adding R stuff
-
-So far this is just a blog where you can write in plain text and serve your writing to a webpage. One of the main purposes of this lab journal is to record your progress learning R. The reason I am asking you to use this process is because you can both make a website, and a lab journal, and learn R all in R-studio. This makes everything really convenient and in the same place. 
-
-So, let's say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:
-
-```{r}
 library(tidyverse)
 library(tidyquant)
 library(broom)
@@ -171,10 +121,23 @@ umap_results_tbl <- umap_obj$layout %>%
 
 
 
+# umap_results_tbl %>%
+#   ggplot(aes(x, y)) +
+#   ggplot2::geom_point(alpha(0.5))
+# #geom_point(alpha(0.5)) + 
+# ggrepel::geom_label_repel(aes(label = symbol), size = 3)
+# theme_tq()
+# labs(title = "Skree Plot")
+
+
 umap_results_tbl %>%
   ggplot(aes(x, y)) +
   geom_point(alpha = 0.5) + 
   labs(title = "UMAP Projection")
+
+
+
+
 
 
 
@@ -224,7 +187,3 @@ umap_kmeans_10_results_tb  %>%
   scale_color_manual(values=c("#2d72d6", "#2dc6d6", "#2dd692", "#000000",  "#00FF00", "#00FFFF",
                               "#C0C0C0", "#800000", "#800080", "#000080")) +
   labs(title = "Customer Segmentation: 2D Projection")
-
-```
-
-When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You'll learn that all of these things and more can be customized in each R code block.
