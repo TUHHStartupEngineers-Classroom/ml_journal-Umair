@@ -185,7 +185,6 @@ predictions <- h2o.predict(stacked_ensemble_h2o, newdata = as.h2o(test_tbl))
 typeof(predictions)
 
 predictions_tbl_2 <- predictions %>% as_tibble()
-glimpse(predictions_tbl_2)
 
 
 ################### end ######################

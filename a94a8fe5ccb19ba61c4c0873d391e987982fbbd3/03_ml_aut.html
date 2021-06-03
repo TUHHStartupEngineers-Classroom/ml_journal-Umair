@@ -452,14 +452,14 @@ h2o.init()</code></pre>
 <pre><code>##  Connection successful!
 ## 
 ## R is connected to the H2O cluster: 
-##     H2O cluster uptime:         4 days 3 hours 
+##     H2O cluster uptime:         4 days 6 hours 
 ##     H2O cluster timezone:       +01:00 
 ##     H2O data parsing timezone:  UTC 
 ##     H2O cluster version:        3.32.1.3 
-##     H2O cluster version age:    14 days, 21 hours and 39 minutes  
+##     H2O cluster version age:    15 days  
 ##     H2O cluster name:           H2O_started_from_R_M_Umair_Chaudhry_wae888 
 ##     H2O cluster total nodes:    1 
-##     H2O cluster total memory:   1.12 GB 
+##     H2O cluster total memory:   0.96 GB 
 ##     H2O cluster total cores:    4 
 ##     H2O cluster allowed cores:  4 
 ##     H2O cluster healthy:        TRUE 
@@ -510,82 +510,88 @@ automl_models_h2o &lt;- h2o.automl(
 <pre><code>## 
   |                                                                            
   |                                                                      |   0%
-  |                                                                            
-  |=                                                                     |   2%
-## 15:39:39.11: User specified a validation frame with cross-validation still enabled. Please note that the models will still be validated using cross-validation only, the validation frame will be used to provide purely informative validation metrics on the trained models.
-## 15:39:39.194: AutoML: XGBoost is not available; skipping it.
+## 18:58:40.666: User specified a validation frame with cross-validation still enabled. Please note that the models will still be validated using cross-validation only, the validation frame will be used to provide purely informative validation metrics on the trained models.
+## 18:58:40.690: AutoML: XGBoost is not available; skipping it.
   |                                                                            
   |===                                                                   |   4%
   |                                                                            
-  |====                                                                  |   6%
+  |===                                                                   |   5%
+  |                                                                            
+  |=====                                                                 |   7%
   |                                                                            
   |=====                                                                 |   8%
   |                                                                            
   |======                                                                |   9%
   |                                                                            
-  |=======                                                               |   9%
+  |========================                                              |  34%
   |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==========                                                            |  15%
-  |                                                                            
-  |============                                                          |  16%
-  |                                                                            
-  |============                                                          |  17%
-  |                                                                            
-  |==============                                                        |  20%
-  |                                                                            
-  |===============                                                       |  21%
-  |                                                                            
-  |=================                                                     |  24%
-  |                                                                            
-  |=================                                                     |  25%
-  |                                                                            
-  |====================                                                  |  28%
-  |                                                                            
-  |=======================                                               |  33%
+  |========================                                              |  35%
   |                                                                            
   |=========================                                             |  36%
   |                                                                            
-  |==========================                                            |  37%
+  |==========================                                            |  38%
   |                                                                            
-  |==============================                                        |  43%
+  |===========================                                           |  38%
+  |                                                                            
+  |============================                                          |  40%
+  |                                                                            
+  |=============================                                         |  41%
+  |                                                                            
+  |=============================                                         |  42%
   |                                                                            
   |===============================                                       |  44%
-  |                                                                            
-  |===============================                                       |  45%
   |                                                                            
   |================================                                      |  46%
   |                                                                            
   |=================================                                     |  47%
   |                                                                            
-  |==================================                                    |  49%
+  |==================================                                    |  48%
+  |                                                                            
+  |===================================                                   |  50%
   |                                                                            
   |====================================                                  |  52%
   |                                                                            
-  |=====================================                                 |  52%
+  |=====================================                                 |  53%
+  |                                                                            
+  |=======================================                               |  56%
   |                                                                            
   |========================================                              |  57%
   |                                                                            
   |=========================================                             |  58%
   |                                                                            
-  |==========================================                            |  60%
-  |                                                                            
   |===========================================                           |  61%
   |                                                                            
   |============================================                          |  62%
   |                                                                            
+  |============================================                          |  63%
+  |                                                                            
+  |===============================================                       |  67%
+  |                                                                            
+  |================================================                      |  68%
+  |                                                                            
   |================================================                      |  69%
+  |                                                                            
+  |=================================================                     |  69%
   |                                                                            
   |==================================================                    |  71%
   |                                                                            
-  |=======================================================               |  79%
+  |==================================================                    |  72%
   |                                                                            
-  |=============================================================         |  88%
+  |===================================================                   |  73%
   |                                                                            
-  |===============================================================       |  90%
+  |=======================================================               |  78%
   |                                                                            
-  |==================================================================    |  94%
+  |==========================================================            |  82%
+  |                                                                            
+  |============================================================          |  85%
+  |                                                                            
+  |===============================================================       |  89%
+  |                                                                            
+  |===================================================================   |  95%
+  |                                                                            
+  |====================================================================  |  97%
+  |                                                                            
+  |===================================================================== |  99%
   |                                                                            
   |======================================================================| 100%</code></pre>
 <pre class="r"><code>################Step 4 View the leaderboard##############
@@ -598,19 +604,19 @@ typeof(automl_models_h2o)</code></pre>
 ## [5] &quot;modeling_steps&quot; &quot;training_info&quot;</code></pre>
 <pre class="r"><code>automl_models_h2o@leaderboard</code></pre>
 <pre><code>##                                              model_id       auc   logloss
-## 1    StackedEnsemble_AllModels_AutoML_20210603_153939 0.9520962 0.1741886
-## 2                        GBM_4_AutoML_20210603_153939 0.9504473 0.1809885
-## 3          GBM_grid__1_AutoML_20210603_153939_model_2 0.9500651 0.1777556
-## 4 StackedEnsemble_BestOfFamily_AutoML_20210603_153939 0.9490464 0.1764840
-## 5                        GBM_2_AutoML_20210603_153939 0.9478247 0.1855134
-## 6          GBM_grid__1_AutoML_20210603_153939_model_3 0.9464655 0.1899023
+## 1    StackedEnsemble_AllModels_AutoML_20210603_185840 0.9486342 0.1769285
+## 2                        GBM_3_AutoML_20210603_185840 0.9473321 0.1936662
+## 3 StackedEnsemble_BestOfFamily_AutoML_20210603_185840 0.9460521 0.1800126
+## 4                        GBM_2_AutoML_20210603_185840 0.9457914 0.1893308
+## 5          GBM_grid__1_AutoML_20210603_185840_model_2 0.9445998 0.1843899
+## 6          GBM_grid__1_AutoML_20210603_185840_model_1 0.9426618 0.1863229
 ##       aucpr mean_per_class_error      rmse        mse
-## 1 0.7452872            0.1406958 0.2289836 0.05243349
-## 2 0.7396613            0.1655739 0.2320732 0.05385799
-## 3 0.7454355            0.1778598 0.2321392 0.05388862
-## 4 0.7370467            0.1364730 0.2299061 0.05285682
-## 5 0.7322255            0.1578625 0.2341629 0.05483226
-## 6 0.7135999            0.1570669 0.2389858 0.05711423
+## 1 0.7392267            0.1369320 0.2299968 0.05289854
+## 2 0.7275842            0.1523850 0.2376149 0.05646082
+## 3 0.7281310            0.1589795 0.2316103 0.05364333
+## 4 0.7239801            0.1460507 0.2351668 0.05530343
+## 5 0.7189022            0.1562101 0.2347458 0.05510557
+## 6 0.7326728            0.1729790 0.2350094 0.05522941
 ## 
 ## [21 rows x 7 columns]</code></pre>
 <pre class="r"><code>automl_models_h2o@leader</code></pre>
@@ -618,7 +624,7 @@ typeof(automl_models_h2o)</code></pre>
 ## ==============
 ## 
 ## H2OBinomialModel: stackedensemble
-## Model ID:  StackedEnsemble_AllModels_AutoML_20210603_153939 
+## Model ID:  StackedEnsemble_AllModels_AutoML_20210603_185840 
 ## Number of Base Models: 19
 ## 
 ## Base Models (count by algorithm type):
@@ -639,119 +645,119 @@ typeof(automl_models_h2o)</code></pre>
 ## H2OBinomialMetrics: stackedensemble
 ## ** Reported on training data. **
 ## 
-## MSE:  0.01605638
-## RMSE:  0.1267138
-## LogLoss:  0.07051364
-## Mean Per-Class Error:  0.03226296
-## AUC:  0.9971203
-## AUCPR:  0.9826155
-## Gini:  0.9942405
+## MSE:  0.021994
+## RMSE:  0.1483037
+## LogLoss:  0.08672016
+## Mean Per-Class Error:  0.06713245
+## AUC:  0.9926497
+## AUCPR:  0.9589412
+## Gini:  0.9852993
 ## 
 ## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
-##          No  Yes    Error       Rate
-## No     8651  101 0.011540  =101/8752
-## Yes      63 1126 0.052986   =63/1189
-## Totals 8714 1227 0.016497  =164/9941
+##          No  Yes    Error        Rate
+## No     8771  116 0.013053   =116/8887
+## Yes     144 1044 0.121212   =144/1188
+## Totals 8915 1160 0.025806  =260/10075
 ## 
 ## Maximum Metrics: Maximum metrics at their respective thresholds
 ##                         metric threshold       value idx
-## 1                       max f1  0.401173    0.932119 179
-## 2                       max f2  0.390216    0.941775 181
-## 3                 max f0point5  0.577984    0.950156 141
-## 4                 max accuracy  0.496388    0.983804 157
-## 5                max precision  0.997901    1.000000   0
-## 6                   max recall  0.052784    1.000000 315
-## 7              max specificity  0.997901    1.000000   0
-## 8             max absolute_mcc  0.401173    0.922880 179
-## 9   max min_per_class_accuracy  0.265708    0.970978 216
-## 10 max mean_per_class_accuracy  0.234311    0.972769 226
-## 11                     max tns  0.997901 8752.000000   0
-## 12                     max fns  0.997901 1188.000000   0
-## 13                     max fps  0.000243 8752.000000 399
-## 14                     max tps  0.052784 1189.000000 315
-## 15                     max tnr  0.997901    1.000000   0
-## 16                     max fnr  0.997901    0.999159   0
-## 17                     max fpr  0.000243    1.000000 399
-## 18                     max tpr  0.052784    1.000000 315
+## 1                       max f1  0.447227    0.889267 169
+## 2                       max f2  0.253738    0.904341 225
+## 3                 max f0point5  0.628668    0.919529 124
+## 4                 max accuracy  0.471477    0.974392 164
+## 5                max precision  0.998992    1.000000   0
+## 6                   max recall  0.027261    1.000000 343
+## 7              max specificity  0.998992    1.000000   0
+## 8             max absolute_mcc  0.471477    0.874943 164
+## 9   max min_per_class_accuracy  0.222825    0.953640 235
+## 10 max mean_per_class_accuracy  0.245994    0.954606 227
+## 11                     max tns  0.998992 8887.000000   0
+## 12                     max fns  0.998992 1182.000000   0
+## 13                     max fps  0.000163 8887.000000 399
+## 14                     max tps  0.027261 1188.000000 343
+## 15                     max tnr  0.998992    1.000000   0
+## 16                     max fnr  0.998992    0.994949   0
+## 17                     max fpr  0.000163    1.000000 399
+## 18                     max tpr  0.027261    1.000000 343
 ## 
 ## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
 ## H2OBinomialMetrics: stackedensemble
 ## ** Reported on validation data. **
 ## 
-## MSE:  0.04853873
-## RMSE:  0.2203151
-## LogLoss:  0.1635316
-## Mean Per-Class Error:  0.1184464
-## AUC:  0.9557374
-## AUCPR:  0.7684626
-## Gini:  0.9114748
+## MSE:  0.04882418
+## RMSE:  0.2209619
+## LogLoss:  0.1643854
+## Mean Per-Class Error:  0.1277245
+## AUC:  0.9552738
+## AUCPR:  0.7734796
+## Gini:  0.9105476
 ## 
 ## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
 ##          No Yes    Error       Rate
-## No     1976 128 0.060837  =128/2104
-## Yes      50 234 0.176056    =50/284
-## Totals 2026 362 0.074539  =178/2388
+## No     1974 130 0.061787  =130/2104
+## Yes      55 229 0.193662    =55/284
+## Totals 2029 359 0.077471  =185/2388
 ## 
 ## Maximum Metrics: Maximum metrics at their respective thresholds
 ##                         metric threshold       value idx
-## 1                       max f1  0.219873    0.724458 205
-## 2                       max f2  0.143631    0.797973 241
-## 3                 max f0point5  0.682869    0.744792  87
-## 4                 max accuracy  0.437061    0.935930 142
-## 5                max precision  0.968824    1.000000   0
-## 6                   max recall  0.004124    1.000000 387
-## 7              max specificity  0.968824    1.000000   0
-## 8             max absolute_mcc  0.219873    0.688801 205
-## 9   max min_per_class_accuracy  0.121387    0.897814 251
-## 10 max mean_per_class_accuracy  0.086132    0.901435 274
-## 11                     max tns  0.968824 2104.000000   0
-## 12                     max fns  0.968824  282.000000   0
-## 13                     max fps  0.000216 2104.000000 399
-## 14                     max tps  0.004124  284.000000 387
-## 15                     max tnr  0.968824    1.000000   0
-## 16                     max fnr  0.968824    0.992958   0
-## 17                     max fpr  0.000216    1.000000 399
-## 18                     max tpr  0.004124    1.000000 387
+## 1                       max f1  0.233186    0.712286 204
+## 2                       max f2  0.125562    0.789149 251
+## 3                 max f0point5  0.711187    0.758929  85
+## 4                 max accuracy  0.525438    0.933836 129
+## 5                max precision  0.984552    1.000000   0
+## 6                   max recall  0.002118    1.000000 394
+## 7              max specificity  0.984552    1.000000   0
+## 8             max absolute_mcc  0.233186    0.674354 204
+## 9   max min_per_class_accuracy  0.127156    0.891160 250
+## 10 max mean_per_class_accuracy  0.105138    0.896910 263
+## 11                     max tns  0.984552 2104.000000   0
+## 12                     max fns  0.984552  282.000000   0
+## 13                     max fps  0.000176 2104.000000 399
+## 14                     max tps  0.002118  284.000000 394
+## 15                     max tnr  0.984552    1.000000   0
+## 16                     max fnr  0.984552    0.992958   0
+## 17                     max fpr  0.000176    1.000000 399
+## 18                     max tpr  0.002118    1.000000 394
 ## 
 ## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
 ## H2OBinomialMetrics: stackedensemble
 ## ** Reported on cross-validation data. **
 ## ** 5-fold cross-validation on training data (Metrics computed for combined holdout predictions) **
 ## 
-## MSE:  0.04991747
-## RMSE:  0.2234222
-## LogLoss:  0.1682862
-## Mean Per-Class Error:  0.144076
-## AUC:  0.9541109
-## AUCPR:  0.7458874
-## Gini:  0.9082217
+## MSE:  0.05097376
+## RMSE:  0.2257737
+## LogLoss:  0.1720897
+## Mean Per-Class Error:  0.1552296
+## AUC:  0.9517844
+## AUCPR:  0.737143
+## Gini:  0.9035687
 ## 
 ## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
 ##           No  Yes    Error         Rate
-## No     11545  624 0.051278   =624/12169
-## Yes      388 1250 0.236874    =388/1638
-## Totals 11933 1874 0.073296  =1012/13807
+## No     11593  576 0.047333   =576/12169
+## Yes      431 1207 0.263126    =431/1638
+## Totals 12024 1783 0.072934  =1007/13807
 ## 
 ## Maximum Metrics: Maximum metrics at their respective thresholds
 ##                         metric threshold        value idx
-## 1                       max f1  0.313774     0.711845 212
-## 2                       max f2  0.172731     0.779366 263
-## 3                 max f0point5  0.651075     0.734944 109
-## 4                 max accuracy  0.494275     0.931484 156
-## 5                max precision  0.987006     1.000000   0
-## 6                   max recall  0.000212     1.000000 399
-## 7              max specificity  0.987006     1.000000   0
-## 8             max absolute_mcc  0.313774     0.672066 212
-## 9   max min_per_class_accuracy  0.107662     0.887090 289
-## 10 max mean_per_class_accuracy  0.104489     0.888424 291
-## 11                     max tns  0.987006 12169.000000   0
-## 12                     max fns  0.987006  1637.000000   0
-## 13                     max fps  0.000212 12169.000000 399
-## 14                     max tps  0.000212  1638.000000 399
-## 15                     max tnr  0.987006     1.000000   0
-## 16                     max fnr  0.987006     0.999389   0
-## 17                     max fpr  0.000212     1.000000 399
-## 18                     max tpr  0.000212     1.000000 399
+## 1                       max f1  0.340801     0.705642 201
+## 2                       max f2  0.124320     0.775081 285
+## 3                 max f0point5  0.646597     0.729921 113
+## 4                 max accuracy  0.485334     0.931049 160
+## 5                max precision  0.996726     1.000000   0
+## 6                   max recall  0.000290     1.000000 399
+## 7              max specificity  0.996726     1.000000   0
+## 8             max absolute_mcc  0.340801     0.664881 201
+## 9   max min_per_class_accuracy  0.111501     0.885836 292
+## 10 max mean_per_class_accuracy  0.109184     0.887027 293
+## 11                     max tns  0.996726 12169.000000   0
+## 12                     max fns  0.996726  1637.000000   0
+## 13                     max fps  0.000290 12169.000000 399
+## 14                     max tps  0.000290  1638.000000 399
+## 15                     max tnr  0.996726     1.000000   0
+## 16                     max fnr  0.996726     0.999389   0
+## 17                     max fpr  0.000290     1.000000 399
+## 18                     max tpr  0.000290     1.000000 399
 ## 
 ## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`</code></pre>
 <pre class="r"><code>extract_h2o_model_name_by_position &lt;- function(h2o_leaderboard, n = 1, verbose = T) {
@@ -781,7 +787,7 @@ automl_models_h2o@leaderboard %&gt;%
 
 
   h2o.saveModel(path = &quot;04_Modeling/h20_models/challenge&quot;)</code></pre>
-<pre><code>## [1] &quot;C:\\THIS PC\\TUHH S-I\\S - IV\\ML\\Challenge\\Challange_H2O\\Challenge_H2O_2\\Challenge\\Challenge_2nd_Actual\\04_Modeling\\h20_models\\challenge\\GBM_grid__1_AutoML_20210603_153939_model_5&quot;</code></pre>
+<pre><code>## [1] &quot;C:\\THIS PC\\TUHH S-I\\S - IV\\ML\\Challenge\\Challange_H2O\\Challenge_H2O_2\\Challenge\\Challenge_2nd_Actual\\04_Modeling\\h20_models\\challenge\\GBM_grid__1_AutoML_20210603_185840_model_5&quot;</code></pre>
 <pre class="r"><code>h2o.loadModel(&quot;04_Modeling/h20_models/challenge/GBM_grid__1_AutoML_20210531_150000_model_3&quot;)</code></pre>
 <pre><code>## Model Details:
 ## ==============
@@ -1154,13 +1160,9 @@ stacked_ensemble_h2o</code></pre>
 <pre class="r"><code>typeof(predictions)</code></pre>
 <pre><code>## [1] &quot;environment&quot;</code></pre>
 <pre class="r"><code>predictions_tbl_2 &lt;- predictions %&gt;% as_tibble()
-glimpse(predictions_tbl_2)</code></pre>
-<pre><code>## Rows: 2,858
-## Columns: 3
-## $ predict &lt;fct&gt; Yes, Yes, Yes, Yes, Yes, Yes, No, Yes, Yes, Yes, No, Yes, Yes,~
-## $ No      &lt;dbl&gt; 0.3595786, 0.3293842, 0.2681036, 0.7050207, 0.1180731, 0.60036~
-## $ Yes     &lt;dbl&gt; 0.64042142, 0.67061579, 0.73189635, 0.29497931, 0.88192689, 0.~</code></pre>
-<pre class="r"><code>################### end ######################</code></pre>
+
+
+################### end ######################</code></pre>
 <p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
 </div>
 
