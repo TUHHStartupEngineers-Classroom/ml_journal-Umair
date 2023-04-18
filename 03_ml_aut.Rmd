@@ -1,6 +1,6 @@
 ---
 title: "03 Automated Machine Learning with H20"
-date: "2020-11-05"
+date: "2021-01-06"
 output:
   html_document:
     toc: true
@@ -9,46 +9,196 @@ output:
     collapsed: false
     number_sections: true
     toc_depth: 3
-    #code_folding: hide
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
-
-**IMPORTANT:** You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.
-
-This is an `.Rmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
-
-# My first post
+# 03 Automated Machine Learning with H20
 
 Last compiled: `r Sys.Date()`
 
-Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
+ 
 
-## Second level header
+## Automated Machine Learning with H20 (I)
 
-You can add more headers by adding more hashtags. These won't be put into the table of contents
 
-### third level header
+Question #1: Compensation Features What can you deduce about the interaction between Monthly Income and Attrition?
+c. Those that are leaving have a lower Monthly Income
 
-Here's an even lower level header
+Question #2:Compensation Features What can you deduce about the interaction between Percent Salary Hike and Attrition?
+d. It's difficult to deduce anything based on the visualization
 
-# My second post (note the order)
 
-Last compiled: `r Sys.Date()`
+Question #3:Compensation Features What can you deduce about the interaction between Stock Option Level and Attrition?
+c.It’s difficult to deduce anything based on the visualization
 
-I'm writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom
+Question #4:Survey Results What can you deduce about the interaction between Environment Satisfaction and Attrition?
+c. It's difficult to deduce anything based on the visualization
 
-# Adding R stuff
+Question #5:Survey Results What can you deduce about the interaction between Work Life Balance and Attrition
+b. Those that are leaving have higher density of 2’s and 3’s
 
-So far this is just a blog where you can write in plain text and serve your writing to a webpage. One of the main purposes of this lab journal is to record your progress learning R. The reason I am asking you to use this process is because you can both make a website, and a lab journal, and learn R all in R-studio. This makes everything really convenient and in the same place. 
+Question #6:Performance Data What Can you deduce about the interaction between Job Involvement and Attrition?
+d. It's difficult to deduce anything based on the visualization
 
-So, let's say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:
+Question #7:Work-Life Features What can you deduce about the interaction between Over Time and Attrition?
+b. The proportion of those staying that are working Over Time are high compared to those that are not staying
+
+Question #8:Training and Education What can you deduce about the interaction between Training Times Last Year and Attrition
+b. People that leave tend to have less annual trainings
+
+Question #9:Time-Based Features What can you deduce about the interaction between Years At Company and Attrition
+b. People that leave tend to have less working years at the company
+
+Question #10:Time-Based Features What can you deduce about the interaction between Years Since Last Promotion and Attrition?
+c. It's difficult to deduce anything based on the visualization
+
+## Automated Machine Learning with H20 (II)
+
+
 
 ```{r}
-samples <- rnorm(100, mean=0, sd=1)
-hist(samples)
-```
+library(tidyverse)
+library(readxl)
+library(h2o)
+library(rsample)
+library(recipes)
 
-When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You'll learn that all of these things and more can be customized in each R code block.
+
+
+
+
+############ STEP # 1 ############################
+
+
+
+
+product_backorder_tbl          <- read_csv("product_backorders.csv")
+
+set.seed(seed = 1113)
+split_obj                       <- rsample::initial_split(product_backorder_tbl, prop = 0.85)
+train_readable_tbl              <- training(split_obj)
+test_readable_tbl               <- testing(split_obj)
+
+recipe_obj <- recipe(went_on_backorder ~., data = train_readable_tbl) %>% 
+  step_zv(all_predictors()) %>% 
+  prep()
+
+train_tbl <- bake(recipe_obj, new_data = train_readable_tbl)
+test_tbl  <- bake(recipe_obj, new_data = test_readable_tbl)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############ STEP # 2 ############################
+
+
+
+
+# Modeling
+h2o.init()
+
+split_h2o <- h2o.splitFrame(as.h2o(train_tbl), ratios = c(0.85), seed = 1234)
+train_h2o <- split_h2o[[1]]
+valid_h2o <- split_h2o[[2]]
+test_h2o  <- as.h2o(test_tbl)
+
+y <- "went_on_backorder"
+x <- setdiff(names(train_h2o), y)
+
+
+
+
+
+
+############ STEP # 3 ############################
+
+
+
+
+#?h2o.automl
+
+automl_models_h2o <- h2o.automl(
+  x = x,
+  y = y,
+  training_frame    = train_h2o,
+  validation_frame  = valid_h2o,
+  leaderboard_frame = test_h2o,
+  max_runtime_secs  = 300,
+  nfolds            = 5 
+)
+
+
+
+
+################Step 4 View the leaderboard##############
+
+
+typeof(automl_models_h2o)
+
+slotNames(automl_models_h2o)
+
+automl_models_h2o@leaderboard
+
+automl_models_h2o@leader
+
+
+extract_h2o_model_name_by_position <- function(h2o_leaderboard, n = 1, verbose = T) {
+  
+  model_name <- h2o_leaderboard %>%
+    as_tibble() %>%
+    slice(n) %>%
+    pull(model_id)
+  
+  if (verbose) message(model_name)
+  
+  return(model_name)
+  
+}
+
+
+automl_models_h2o@leaderboard %>% 
+  extract_h2o_model_name_by_position(14) %>% 
+  h2o.getModel() %>%
+
+
+
+
+
+
+################ Saving & Loading H2O models Step#5 ###############
+
+
+  h2o.saveModel(path = "04_Modeling/h20_models/challenge")
+
+
+h2o.loadModel("04_Modeling/h20_models/challenge/GBM_grid__1_AutoML_20210531_150000_model_3")
+
+############### Step 5 Predicting using Leader Model#####################
+
+
+stacked_ensemble_h2o <- h2o.loadModel("04_Modeling/h20_models/challenge/GBM_grid__1_AutoML_20210531_150000_model_3")
+stacked_ensemble_h2o
+
+predictions <- h2o.predict(stacked_ensemble_h2o, newdata = as.h2o(test_tbl))
+
+typeof(predictions)
+
+predictions_tbl_2 <- predictions %>% as_tibble()
+predictions_tbl_2
+
+################### end ######################
+```

@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2021-06-03" />
+
+<title>05 LIME</title>
+
+<script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">MyLabJournal</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Index</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Journal
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="01_ml_fund.html">01 Machine Learning Fundamentals</a>
+    </li>
+    <li>
+      <a href="02_ml_sup.html">02 Supervised ML</a>
+    </li>
+    <li>
+      <a href="03_ml_aut.html">03 Automated Machine Learning with H20</a>
+    </li>
+    <li>
+      <a href="04_perf_meas.html">04 Performance Measures</a>
+    </li>
+    <li>
+      <a href="05_lime.html">05 LIME</a>
+    </li>
+    <li>
+      <a href="06_dl.html">06 Deep Learning</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="07_class_notes.html">Class notes</a>
+</li>
+<li>
+  <a href="08_links.html">Links</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">05 LIME</h1>
+<h4 class="date">2021-06-03</h4>
+
+</div>
+
+
+<div id="lime" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> 05 LIME</h1>
+<p>Last compiled: 2021-06-04</p>
+<pre class="r"><code># LIME FEATURE EXPLANATION ----
+
+# 1. Setup ----
+
+# Load Libraries 
+
+library(h2o)
+library(recipes)
+library(readxl)
+library(tidyverse)
+library(tidyquant)
+library(lime)
+library(rsample)
+
+# Load Data
+employee_attrition_tbl &lt;- read_csv(&quot;WA_Fn-UseC_-HR-Employee-Attrition.csv&quot;)
+definitions_raw_tbl    &lt;- read_excel(&quot;data_definitions.xlsx&quot;, sheet = 1, col_names = FALSE)
+
+# Processing Pipeline
+#source(&quot;00_Scripts/data_processing_pipeline.R&quot;)
+
+#Adding required function
+
+employee_attrition_tbl &lt;- read_csv(&quot;WA_Fn-UseC_-HR-Employee-Attrition.csv&quot;)
+definitions_raw_tbl    &lt;- read_excel(&quot;data_definitions.xlsx&quot;, sheet = 1, col_names = FALSE)
+View(definitions_raw_tbl)       
+
+
+#install.packages(rmarkdown)
+
+
+employee_attrition_tbl %&gt;% 
+  ggplot(aes(Education)) +
+  geom_bar()</code></pre>
+<p><img src="05_lime_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<pre class="r"><code># Data preparation ----
+# Human readable
+
+definitions_tbl &lt;- definitions_raw_tbl %&gt;% 
+  fill(...1, .direction = &quot;down&quot;) %&gt;%
+  filter(!is.na(...2)) %&gt;%
+  separate(...2, into = c(&quot;key&quot;, &quot;value&quot;), sep = &quot; &#39;&quot;, remove = TRUE) %&gt;%
+  rename(column_name = ...1) %&gt;%
+  mutate(key = as.numeric(key)) %&gt;%
+  mutate(value = value %&gt;% str_replace(pattern = &quot;&#39;&quot;, replacement = &quot;&quot;)) 
+definitions_tbl</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["column_name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["key"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["value"],"name":[3],"type":["chr"],"align":["left"]}],"data":[{"1":"Education","2":"1","3":"Below College"},{"1":"Education","2":"2","3":"College"},{"1":"Education","2":"3","3":"Bachelor"},{"1":"Education","2":"4","3":"Master"},{"1":"Education","2":"5","3":"Doctor"},{"1":"EnvironmentSatisfaction","2":"1","3":"Low"},{"1":"EnvironmentSatisfaction","2":"2","3":"Medium"},{"1":"EnvironmentSatisfaction","2":"3","3":"High"},{"1":"EnvironmentSatisfaction","2":"4","3":"Very High"},{"1":"JobInvolvement","2":"1","3":"Low"},{"1":"JobInvolvement","2":"2","3":"Medium"},{"1":"JobInvolvement","2":"3","3":"High"},{"1":"JobInvolvement","2":"4","3":"Very High"},{"1":"JobSatisfaction","2":"1","3":"Low"},{"1":"JobSatisfaction","2":"2","3":"Medium"},{"1":"JobSatisfaction","2":"3","3":"High"},{"1":"JobSatisfaction","2":"4","3":"Very High"},{"1":"PerformanceRating","2":"1","3":"Low"},{"1":"PerformanceRating","2":"2","3":"Good"},{"1":"PerformanceRating","2":"3","3":"Excellent"},{"1":"PerformanceRating","2":"4","3":"Outstanding"},{"1":"RelationshipSatisfaction","2":"1","3":"Low"},{"1":"RelationshipSatisfaction","2":"2","3":"Medium"},{"1":"RelationshipSatisfaction","2":"3","3":"High"},{"1":"RelationshipSatisfaction","2":"4","3":"Very High"},{"1":"WorkLifeBalance","2":"1","3":"Bad"},{"1":"WorkLifeBalance","2":"2","3":"Good"},{"1":"WorkLifeBalance","2":"3","3":"Better"},{"1":"WorkLifeBalance","2":"4","3":"Best"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># DATA PREPARATION ----
+# Human readable ----
+
+definitions_list &lt;- definitions_tbl %&gt;% 
+  
+  # Mapping over lists
+
+# Split into multiple tibbles
+split(.$column_name) %&gt;%
+  # Remove column_name
+  map(~ select(., -column_name)) %&gt;%
+  # Convert to factors because they are ordered an we want to maintain that order
+  map(~ mutate(., value = as_factor(value))) 
+
+# definitions_list[[1]]
+definitions_list[[&quot;Education&quot;]]</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["key"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["value"],"name":[2],"type":["fct"],"align":["left"]}],"data":[{"1":"1","2":"Below College"},{"1":"2","2":"College"},{"1":"3","2":"Bachelor"},{"1":"4","2":"Master"},{"1":"5","2":"Doctor"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>## # A tibble: 5 x 2
+
+
+
+# Rename columns
+for (i in seq_along(definitions_list)) {
+  list_name &lt;- names(definitions_list)[i]
+  colnames(definitions_list[[i]]) &lt;- c(list_name, paste0(list_name, &quot;_value&quot;))
+}
+
+definitions_list[[&quot;Education&quot;]]</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Education"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Education_value"],"name":[2],"type":["fct"],"align":["left"]}],"data":[{"1":"1","2":"Below College"},{"1":"2","2":"College"},{"1":"3","2":"Bachelor"},{"1":"4","2":"Master"},{"1":"5","2":"Doctor"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>data_merged_tbl &lt;- list(HR_Data = employee_attrition_tbl) %&gt;%
+  
+  # Join everything
+  append(definitions_list, after =1) %&gt;%
+  reduce(left_join) %&gt;%
+  
+  # Remove unnecessary columns
+  select(-one_of(names(definitions_list))) %&gt;%
+  
+  # Format the &quot;_value&quot;
+  set_names(str_replace_all(names(.), pattern = &quot;_value&quot;, replacement = &quot;&quot;)) %&gt;%
+  
+  # Resort
+  select(sort(names(.)))
+
+
+data_merged_tbl %&gt;% 
+  distinct(BusinessTravel)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["BusinessTravel"],"name":[1],"type":["chr"],"align":["left"]}],"data":[{"1":"Travel_Rarely"},{"1":"Travel_Frequently"},{"1":"Non-Travel"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>data_merged_tbl %&gt;%
+  mutate_if(is.character, as.factor) %&gt;%
+  glimpse()</code></pre>
+<pre><code>## Rows: 1,470
+## Columns: 35
+## $ Age                      &lt;dbl&gt; 41, 49, 37, 33, 27, 32, 59, 30, 38, 36, 35, 2~
+## $ Attrition                &lt;fct&gt; Yes, No, Yes, No, No, No, No, No, No, No, No,~
+## $ BusinessTravel           &lt;fct&gt; Travel_Rarely, Travel_Frequently, Travel_Rare~
+## $ DailyRate                &lt;dbl&gt; 1102, 279, 1373, 1392, 591, 1005, 1324, 1358,~
+## $ Department               &lt;fct&gt; Sales, Research &amp; Development, Research &amp; Dev~
+## $ DistanceFromHome         &lt;dbl&gt; 1, 8, 2, 3, 2, 2, 3, 24, 23, 27, 16, 15, 26, ~
+## $ Education                &lt;fct&gt; College, Below College, College, Master, Belo~
+## $ EducationField           &lt;fct&gt; Life Sciences, Life Sciences, Other, Life Sci~
+## $ EmployeeCount            &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ~
+## $ EmployeeNumber           &lt;dbl&gt; 1, 2, 4, 5, 7, 8, 10, 11, 12, 13, 14, 15, 16,~
+## $ EnvironmentSatisfaction  &lt;fct&gt; Medium, High, Very High, Very High, Low, Very~
+## $ Gender                   &lt;fct&gt; Female, Male, Male, Female, Male, Male, Femal~
+## $ HourlyRate               &lt;dbl&gt; 94, 61, 92, 56, 40, 79, 81, 67, 44, 94, 84, 4~
+## $ JobInvolvement           &lt;fct&gt; High, Medium, Medium, High, High, High, Very ~
+## $ JobLevel                 &lt;dbl&gt; 2, 2, 1, 1, 1, 1, 1, 1, 3, 2, 1, 2, 1, 1, 1, ~
+## $ JobRole                  &lt;fct&gt; Sales Executive, Research Scientist, Laborato~
+## $ JobSatisfaction          &lt;fct&gt; Very High, Medium, High, High, Medium, Very H~
+## $ MaritalStatus            &lt;fct&gt; Single, Married, Single, Married, Married, Si~
+## $ MonthlyIncome            &lt;dbl&gt; 5993, 5130, 2090, 2909, 3468, 3068, 2670, 269~
+## $ MonthlyRate              &lt;dbl&gt; 19479, 24907, 2396, 23159, 16632, 11864, 9964~
+## $ NumCompaniesWorked       &lt;dbl&gt; 8, 1, 6, 1, 9, 0, 4, 1, 0, 6, 0, 0, 1, 0, 5, ~
+## $ Over18                   &lt;fct&gt; Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, ~
+## $ OverTime                 &lt;fct&gt; Yes, No, Yes, Yes, No, No, Yes, No, No, No, N~
+## $ PercentSalaryHike        &lt;dbl&gt; 11, 23, 15, 11, 12, 13, 20, 22, 21, 13, 13, 1~
+## $ PerformanceRating        &lt;fct&gt; Excellent, Outstanding, Excellent, Excellent,~
+## $ RelationshipSatisfaction &lt;fct&gt; Low, Very High, Medium, High, Very High, High~
+## $ StandardHours            &lt;dbl&gt; 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 8~
+## $ StockOptionLevel         &lt;dbl&gt; 0, 1, 0, 0, 1, 0, 3, 1, 0, 2, 1, 0, 1, 1, 0, ~
+## $ TotalWorkingYears        &lt;dbl&gt; 8, 10, 7, 8, 6, 8, 12, 1, 10, 17, 6, 10, 5, 3~
+## $ TrainingTimesLastYear    &lt;dbl&gt; 0, 3, 3, 3, 3, 2, 3, 2, 2, 3, 5, 3, 1, 2, 4, ~
+## $ WorkLifeBalance          &lt;fct&gt; Bad, Better, Better, Better, Better, Good, Go~
+## $ YearsAtCompany           &lt;dbl&gt; 6, 10, 0, 8, 2, 7, 1, 1, 9, 7, 5, 9, 5, 2, 4,~
+## $ YearsInCurrentRole       &lt;dbl&gt; 4, 7, 0, 7, 2, 7, 0, 0, 7, 7, 4, 5, 2, 2, 2, ~
+## $ YearsSinceLastPromotion  &lt;dbl&gt; 0, 1, 0, 3, 2, 3, 0, 0, 1, 7, 0, 0, 4, 1, 0, ~
+## $ YearsWithCurrManager     &lt;dbl&gt; 5, 7, 0, 0, 2, 6, 0, 0, 8, 7, 3, 8, 3, 2, 3, ~</code></pre>
+<pre class="r"><code>data_merged_tbl %&gt;%
+  mutate_if(is.character, as.factor) %&gt;%
+  select_if(is.factor) %&gt;%
+  glimpse()</code></pre>
+<pre><code>## Rows: 1,470
+## Columns: 16
+## $ Attrition                &lt;fct&gt; Yes, No, Yes, No, No, No, No, No, No, No, No,~
+## $ BusinessTravel           &lt;fct&gt; Travel_Rarely, Travel_Frequently, Travel_Rare~
+## $ Department               &lt;fct&gt; Sales, Research &amp; Development, Research &amp; Dev~
+## $ Education                &lt;fct&gt; College, Below College, College, Master, Belo~
+## $ EducationField           &lt;fct&gt; Life Sciences, Life Sciences, Other, Life Sci~
+## $ EnvironmentSatisfaction  &lt;fct&gt; Medium, High, Very High, Very High, Low, Very~
+## $ Gender                   &lt;fct&gt; Female, Male, Male, Female, Male, Male, Femal~
+## $ JobInvolvement           &lt;fct&gt; High, Medium, Medium, High, High, High, Very ~
+## $ JobRole                  &lt;fct&gt; Sales Executive, Research Scientist, Laborato~
+## $ JobSatisfaction          &lt;fct&gt; Very High, Medium, High, High, Medium, Very H~
+## $ MaritalStatus            &lt;fct&gt; Single, Married, Single, Married, Married, Si~
+## $ Over18                   &lt;fct&gt; Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, ~
+## $ OverTime                 &lt;fct&gt; Yes, No, Yes, Yes, No, No, Yes, No, No, No, N~
+## $ PerformanceRating        &lt;fct&gt; Excellent, Outstanding, Excellent, Excellent,~
+## $ RelationshipSatisfaction &lt;fct&gt; Low, Very High, Medium, High, Very High, High~
+## $ WorkLifeBalance          &lt;fct&gt; Bad, Better, Better, Better, Better, Good, Go~</code></pre>
+<pre class="r"><code>data_merged_tbl %&gt;%
+  mutate_if(is.character, as.factor) %&gt;%
+  select_if(is.factor) %&gt;%
+  map(levels)</code></pre>
+<pre><code>## $Attrition
+## [1] &quot;No&quot;  &quot;Yes&quot;
+## 
+## $BusinessTravel
+## [1] &quot;Non-Travel&quot;        &quot;Travel_Frequently&quot; &quot;Travel_Rarely&quot;    
+## 
+## $Department
+## [1] &quot;Human Resources&quot;        &quot;Research &amp; Development&quot; &quot;Sales&quot;                 
+## 
+## $Education
+## [1] &quot;Below College&quot; &quot;College&quot;       &quot;Bachelor&quot;      &quot;Master&quot;       
+## [5] &quot;Doctor&quot;       
+## 
+## $EducationField
+## [1] &quot;Human Resources&quot;  &quot;Life Sciences&quot;    &quot;Marketing&quot;        &quot;Medical&quot;         
+## [5] &quot;Other&quot;            &quot;Technical Degree&quot;
+## 
+## $EnvironmentSatisfaction
+## [1] &quot;Low&quot;       &quot;Medium&quot;    &quot;High&quot;      &quot;Very High&quot;
+## 
+## $Gender
+## [1] &quot;Female&quot; &quot;Male&quot;  
+## 
+## $JobInvolvement
+## [1] &quot;Low&quot;       &quot;Medium&quot;    &quot;High&quot;      &quot;Very High&quot;
+## 
+## $JobRole
+## [1] &quot;Healthcare Representative&quot; &quot;Human Resources&quot;          
+## [3] &quot;Laboratory Technician&quot;     &quot;Manager&quot;                  
+## [5] &quot;Manufacturing Director&quot;    &quot;Research Director&quot;        
+## [7] &quot;Research Scientist&quot;        &quot;Sales Executive&quot;          
+## [9] &quot;Sales Representative&quot;     
+## 
+## $JobSatisfaction
+## [1] &quot;Low&quot;       &quot;Medium&quot;    &quot;High&quot;      &quot;Very High&quot;
+## 
+## $MaritalStatus
+## [1] &quot;Divorced&quot; &quot;Married&quot;  &quot;Single&quot;  
+## 
+## $Over18
+## [1] &quot;Y&quot;
+## 
+## $OverTime
+## [1] &quot;No&quot;  &quot;Yes&quot;
+## 
+## $PerformanceRating
+## [1] &quot;Low&quot;         &quot;Good&quot;        &quot;Excellent&quot;   &quot;Outstanding&quot;
+## 
+## $RelationshipSatisfaction
+## [1] &quot;Low&quot;       &quot;Medium&quot;    &quot;High&quot;      &quot;Very High&quot;
+## 
+## $WorkLifeBalance
+## [1] &quot;Bad&quot;    &quot;Good&quot;   &quot;Better&quot; &quot;Best&quot;</code></pre>
+<pre class="r"><code>data_processed_tbl &lt;- data_merged_tbl %&gt;%        
+  mutate_if(is.character, as.factor) %&gt;%
+  mutate(
+    BusinessTravel = BusinessTravel %&gt;% fct_relevel(&quot;Non-Travel&quot;, 
+                                                    &quot;Travel_Rarely&quot;, 
+                                                    &quot;Travel_Frequently&quot;),
+    MaritalStatus  = MaritalStatus %&gt;% fct_relevel(&quot;Single&quot;, 
+                                                   &quot;Married&quot;, 
+                                                   &quot;Divorced&quot;)
+  )
+data_processed_tbl %&gt;% 
+  select_if(is.factor) %&gt;% 
+  map(levels)</code></pre>
+<pre><code>## $Attrition
+## [1] &quot;No&quot;  &quot;Yes&quot;
+## 
+## $BusinessTravel
+## [1] &quot;Non-Travel&quot;        &quot;Travel_Rarely&quot;     &quot;Travel_Frequently&quot;
+## 
+## $Department
+## [1] &quot;Human Resources&quot;        &quot;Research &amp; Development&quot; &quot;Sales&quot;                 
+## 
+## $Education
+## [1] &quot;Below College&quot; &quot;College&quot;       &quot;Bachelor&quot;      &quot;Master&quot;       
+## [5] &quot;Doctor&quot;       
+## 
+## $EducationField
+## [1] &quot;Human Resources&quot;  &quot;Life Sciences&quot;    &quot;Marketing&quot;        &quot;Medical&quot;         
+## [5] &quot;Other&quot;            &quot;Technical Degree&quot;
+## 
+## $EnvironmentSatisfaction
+## [1] &quot;Low&quot;       &quot;Medium&quot;    &quot;High&quot;      &quot;Very High&quot;
+## 
+## $Gender
+## [1] &quot;Female&quot; &quot;Male&quot;  
+## 
+## $JobInvolvement
+## [1] &quot;Low&quot;       &quot;Medium&quot;    &quot;High&quot;      &quot;Very High&quot;
+## 
+## $JobRole
+## [1] &quot;Healthcare Representative&quot; &quot;Human Resources&quot;          
+## [3] &quot;Laboratory Technician&quot;     &quot;Manager&quot;                  
+## [5] &quot;Manufacturing Director&quot;    &quot;Research Director&quot;        
+## [7] &quot;Research Scientist&quot;        &quot;Sales Executive&quot;          
+## [9] &quot;Sales Representative&quot;     
+## 
+## $JobSatisfaction
+## [1] &quot;Low&quot;       &quot;Medium&quot;    &quot;High&quot;      &quot;Very High&quot;
+## 
+## $MaritalStatus
+## [1] &quot;Single&quot;   &quot;Married&quot;  &quot;Divorced&quot;
+## 
+## $Over18
+## [1] &quot;Y&quot;
+## 
+## $OverTime
+## [1] &quot;No&quot;  &quot;Yes&quot;
+## 
+## $PerformanceRating
+## [1] &quot;Low&quot;         &quot;Good&quot;        &quot;Excellent&quot;   &quot;Outstanding&quot;
+## 
+## $RelationshipSatisfaction
+## [1] &quot;Low&quot;       &quot;Medium&quot;    &quot;High&quot;      &quot;Very High&quot;
+## 
+## $WorkLifeBalance
+## [1] &quot;Bad&quot;    &quot;Good&quot;   &quot;Better&quot; &quot;Best&quot;</code></pre>
+<pre class="r"><code>process_hr_data_readable &lt;- function(data, definitions_tbl) {
+  
+  definitions_list &lt;- definitions_tbl %&gt;%
+    fill(...1, .direction = &quot;down&quot;) %&gt;%
+    filter(!is.na(...2)) %&gt;%
+    separate(...2, into = c(&quot;key&quot;, &quot;value&quot;), sep = &quot; &#39;&quot;, remove = TRUE) %&gt;%
+    rename(column_name = ...1) %&gt;%
+    mutate(key = as.numeric(key)) %&gt;%
+    mutate(value = value %&gt;% str_replace(pattern = &quot;&#39;&quot;, replacement = &quot;&quot;)) %&gt;%
+    split(.$column_name) %&gt;%
+    map(~ select(., -column_name)) %&gt;%
+    map(~ mutate(., value = as_factor(value))) 
+  
+  for (i in seq_along(definitions_list)) {
+    list_name &lt;- names(definitions_list)[i]
+    colnames(definitions_list[[i]]) &lt;- c(list_name, paste0(list_name, &quot;_value&quot;))
+  }
+  
+  data_merged_tbl &lt;- list(HR_Data = data) %&gt;%
+    append(definitions_list, after = 1) %&gt;%
+    reduce(left_join) %&gt;%
+    select(-one_of(names(definitions_list))) %&gt;%
+    set_names(str_replace_all(names(.), pattern = &quot;_value&quot;, 
+                              replacement = &quot;&quot;)) %&gt;%
+    select(sort(names(.))) %&gt;%
+    mutate_if(is.character, as.factor) %&gt;%
+    mutate(
+      BusinessTravel = BusinessTravel %&gt;% fct_relevel(&quot;Non-Travel&quot;, 
+                                                      &quot;Travel_Rarely&quot;, 
+                                                      &quot;Travel_Frequently&quot;),
+      MaritalStatus  = MaritalStatus %&gt;% fct_relevel(&quot;Single&quot;, 
+                                                     &quot;Married&quot;, 
+                                                     &quot;Divorced&quot;)
+    )
+  
+  return(data_merged_tbl)
+  
+}
+
+
+
+
+employee_attrition_readable_tbl &lt;- process_hr_data_readable(employee_attrition_tbl, definitions_raw_tbl)
+
+# Split into test and train
+set.seed(seed = 1113)
+split_obj &lt;- rsample::initial_split(employee_attrition_readable_tbl, prop = 0.85)
+
+# Assign training and test data
+train_readable_tbl &lt;- training(split_obj)
+test_readable_tbl  &lt;- testing(split_obj)
+
+# ML Preprocessing Recipe 
+recipe_obj &lt;- recipe(Attrition ~ ., data = train_readable_tbl) %&gt;%
+  step_zv(all_predictors()) %&gt;%
+  step_mutate_at(c(&quot;JobLevel&quot;, &quot;StockOptionLevel&quot;), fn = as.factor) %&gt;% 
+  prep()
+
+recipe_obj</code></pre>
+<pre><code>## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor         34
+## 
+## Training data contained 1249 data points and no missing data.
+## 
+## Operations:
+## 
+## Zero variance filter removed EmployeeCount, Over18, StandardHours [trained]
+## Variable mutation for JobLevel, StockOptionLevel [trained]</code></pre>
+<pre class="r"><code>train_tbl &lt;- bake(recipe_obj, new_data = train_readable_tbl)
+test_tbl  &lt;- bake(recipe_obj, new_data = test_readable_tbl)
+
+# 2. Models ----
+
+h2o.init()</code></pre>
+<pre><code>##  Connection successful!
+## 
+## R is connected to the H2O cluster: 
+##     H2O cluster uptime:         4 days 6 hours 
+##     H2O cluster timezone:       +01:00 
+##     H2O data parsing timezone:  UTC 
+##     H2O cluster version:        3.32.1.3 
+##     H2O cluster version age:    15 days  
+##     H2O cluster name:           H2O_started_from_R_M_Umair_Chaudhry_wae888 
+##     H2O cluster total nodes:    1 
+##     H2O cluster total memory:   0.98 GB 
+##     H2O cluster total cores:    4 
+##     H2O cluster allowed cores:  4 
+##     H2O cluster healthy:        TRUE 
+##     H2O Connection ip:          localhost 
+##     H2O Connection port:        54321 
+##     H2O Connection proxy:       NA 
+##     H2O Internal Security:      FALSE 
+##     H2O API Extensions:         Amazon S3, Algos, AutoML, Core V3, TargetEncoder, Core V4 
+##     R Version:                  R version 4.1.0 (2021-05-18)</code></pre>
+<pre class="r"><code>automl_leader &lt;- h2o.loadModel(&quot;04_Modeling/h20_models/StackedEnsemble_AllModels_AutoML_20210603_180133&quot;)
+automl_leader</code></pre>
+<pre><code>## Model Details:
+## ==============
+## 
+## H2OBinomialModel: stackedensemble
+## Model ID:  StackedEnsemble_AllModels_AutoML_20210603_180133 
+## Number of Base Models: 15
+## 
+## Base Models (count by algorithm type):
+## 
+## deeplearning          drf          gbm          glm 
+##            3            2            9            1 
+## 
+## Metalearner:
+## 
+## Metalearner algorithm: glm
+## Metalearner cross-validation fold assignment:
+##   Fold assignment scheme: AUTO
+##   Number of folds: 5
+##   Fold column: NULL
+## Metalearner hyperparameters: 
+## 
+## 
+## H2OBinomialMetrics: stackedensemble
+## ** Reported on training data. **
+## 
+## MSE:  0.0452544
+## RMSE:  0.2127308
+## LogLoss:  0.1781353
+## Mean Per-Class Error:  0.1173782
+## AUC:  0.9566841
+## AUCPR:  0.9009024
+## Gini:  0.9133681
+## 
+## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+##         No Yes    Error      Rate
+## No     895  14 0.015402   =14/909
+## Yes     34 121 0.219355   =34/155
+## Totals 929 135 0.045113  =48/1064
+## 
+## Maximum Metrics: Maximum metrics at their respective thresholds
+##                         metric threshold      value idx
+## 1                       max f1  0.392735   0.834483 108
+## 2                       max f2  0.263808   0.854115 142
+## 3                 max f0point5  0.492150   0.897638  94
+## 4                 max accuracy  0.492150   0.955827  94
+## 5                max precision  0.976915   1.000000   0
+## 6                   max recall  0.010541   1.000000 378
+## 7              max specificity  0.976915   1.000000   0
+## 8             max absolute_mcc  0.492150   0.812885  94
+## 9   max min_per_class_accuracy  0.210393   0.909677 163
+## 10 max mean_per_class_accuracy  0.263808   0.917183 142
+## 11                     max tns  0.976915 909.000000   0
+## 12                     max fns  0.976915 154.000000   0
+## 13                     max fps  0.000808 909.000000 399
+## 14                     max tps  0.010541 155.000000 378
+## 15                     max tnr  0.976915   1.000000   0
+## 16                     max fnr  0.976915   0.993548   0
+## 17                     max fpr  0.000808   1.000000 399
+## 18                     max tpr  0.010541   1.000000 378
+## 
+## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+## H2OBinomialMetrics: stackedensemble
+## ** Reported on validation data. **
+## 
+## MSE:  0.101822
+## RMSE:  0.3190956
+## LogLoss:  0.3353811
+## Mean Per-Class Error:  0.211869
+## AUC:  0.8648407
+## AUCPR:  0.7146159
+## Gini:  0.7296813
+## 
+## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+##         No Yes    Error     Rate
+## No     135  12 0.081633  =12/147
+## Yes     13  25 0.342105   =13/38
+## Totals 148  37 0.135135  =25/185
+## 
+## Maximum Metrics: Maximum metrics at their respective thresholds
+##                         metric threshold      value idx
+## 1                       max f1  0.376665   0.666667  36
+## 2                       max f2  0.185421   0.714286  57
+## 3                 max f0point5  0.428897   0.714286  28
+## 4                 max accuracy  0.428897   0.875676  28
+## 5                max precision  0.953668   1.000000   0
+## 6                   max recall  0.018246   1.000000 147
+## 7              max specificity  0.953668   1.000000   0
+## 8             max absolute_mcc  0.416933   0.595848  30
+## 9   max min_per_class_accuracy  0.185421   0.789474  57
+## 10 max mean_per_class_accuracy  0.287037   0.800841  42
+## 11                     max tns  0.953668 147.000000   0
+## 12                     max fns  0.953668  37.000000   0
+## 13                     max fps  0.001755 147.000000 184
+## 14                     max tps  0.018246  38.000000 147
+## 15                     max tnr  0.953668   1.000000   0
+## 16                     max fnr  0.953668   0.973684   0
+## 17                     max fpr  0.001755   1.000000 184
+## 18                     max tpr  0.018246   1.000000 147
+## 
+## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+## H2OBinomialMetrics: stackedensemble
+## ** Reported on cross-validation data. **
+## ** 5-fold cross-validation on training data (Metrics computed for combined holdout predictions) **
+## 
+## MSE:  0.08438538
+## RMSE:  0.2904916
+## LogLoss:  0.2977415
+## Mean Per-Class Error:  0.2212002
+## AUC:  0.8424181
+## AUCPR:  0.6084119
+## Gini:  0.6848362
+## 
+## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+##         No Yes    Error       Rate
+## No     847  62 0.068207    =62/909
+## Yes     58  97 0.374194    =58/155
+## Totals 905 159 0.112782  =120/1064
+## 
+## Maximum Metrics: Maximum metrics at their respective thresholds
+##                         metric threshold      value idx
+## 1                       max f1  0.299829   0.617834 129
+## 2                       max f2  0.210326   0.639671 175
+## 3                 max f0point5  0.438545   0.652952  85
+## 4                 max accuracy  0.438545   0.896617  85
+## 5                max precision  0.979771   1.000000   0
+## 6                   max recall  0.000648   1.000000 399
+## 7              max specificity  0.979771   1.000000   0
+## 8             max absolute_mcc  0.299829   0.551756 129
+## 9   max min_per_class_accuracy  0.135997   0.767877 222
+## 10 max mean_per_class_accuracy  0.210326   0.783956 175
+## 11                     max tns  0.979771 909.000000   0
+## 12                     max fns  0.979771 154.000000   0
+## 13                     max fps  0.000648 909.000000 399
+## 14                     max tps  0.000648 155.000000 399
+## 15                     max tnr  0.979771   1.000000   0
+## 16                     max fnr  0.979771   0.993548   0
+## 17                     max fpr  0.000648   1.000000 399
+## 18                     max tpr  0.000648   1.000000 399
+## 
+## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`</code></pre>
+<pre class="r"><code>predictions_tbl &lt;- automl_leader %&gt;% 
+  h2o.predict(newdata = as.h2o(test_tbl)) %&gt;%
+  as_tibble() %&gt;%
+  bind_cols(
+    test_tbl %&gt;%
+      select(Attrition, EmployeeNumber)
+  )</code></pre>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%
+## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<pre class="r"><code>predictions_tbl</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["predict"],"name":[1],"type":["fct"],"align":["left"]},{"label":["No"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Yes"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Attrition"],"name":[4],"type":["fct"],"align":["left"]},{"label":["EmployeeNumber"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"No","2":"0.66079530","3":"0.339204702","4":"No","5":"10"},{"1":"No","2":"0.78417480","3":"0.215825196","4":"No","5":"16"},{"1":"No","2":"0.89265220","3":"0.107347799","4":"No","5":"30"},{"1":"No","2":"0.89046428","3":"0.109535721","4":"Yes","5":"31"},{"1":"No","2":"0.96386556","3":"0.036134437","4":"No","5":"40"},{"1":"No","2":"0.98661267","3":"0.013387328","4":"Yes","5":"42"},{"1":"No","2":"0.99223468","3":"0.007765317","4":"No","5":"46"},{"1":"Yes","2":"0.21099320","3":"0.789006799","4":"Yes","5":"55"},{"1":"Yes","2":"0.28962899","3":"0.710371006","4":"Yes","5":"64"},{"1":"No","2":"0.98453299","3":"0.015467006","4":"No","5":"77"},{"1":"No","2":"0.77784508","3":"0.222154919","4":"No","5":"80"},{"1":"No","2":"0.94154145","3":"0.058458549","4":"No","5":"83"},{"1":"No","2":"0.94198773","3":"0.058012275","4":"No","5":"85"},{"1":"No","2":"0.99519195","3":"0.004808054","4":"No","5":"96"},{"1":"No","2":"0.90546648","3":"0.094533524","4":"No","5":"121"},{"1":"No","2":"0.88844949","3":"0.111550507","4":"No","5":"125"},{"1":"No","2":"0.99610214","3":"0.003897860","4":"No","5":"140"},{"1":"No","2":"0.81185220","3":"0.188147797","4":"No","5":"145"},{"1":"No","2":"0.92804158","3":"0.071958424","4":"No","5":"158"},{"1":"No","2":"0.79512379","3":"0.204876215","4":"No","5":"159"},{"1":"No","2":"0.95259880","3":"0.047401201","4":"No","5":"160"},{"1":"Yes","2":"0.36731292","3":"0.632687078","4":"Yes","5":"163"},{"1":"No","2":"0.96433326","3":"0.035666744","4":"Yes","5":"165"},{"1":"No","2":"0.92424525","3":"0.075754752","4":"Yes","5":"179"},{"1":"No","2":"0.86158172","3":"0.138418275","4":"No","5":"184"},{"1":"No","2":"0.92095671","3":"0.079043288","4":"No","5":"193"},{"1":"No","2":"0.88027154","3":"0.119728465","4":"No","5":"194"},{"1":"No","2":"0.91728404","3":"0.082715959","4":"No","5":"197"},{"1":"No","2":"0.96375338","3":"0.036246616","4":"No","5":"199"},{"1":"No","2":"0.93573154","3":"0.064268457","4":"No","5":"200"},{"1":"No","2":"0.96363228","3":"0.036367721","4":"No","5":"204"},{"1":"No","2":"0.97610269","3":"0.023897308","4":"No","5":"206"},{"1":"No","2":"0.97442768","3":"0.025572323","4":"No","5":"217"},{"1":"No","2":"0.72137746","3":"0.278622542","4":"No","5":"224"},{"1":"No","2":"0.98471887","3":"0.015281126","4":"No","5":"239"},{"1":"Yes","2":"0.35052842","3":"0.649471582","4":"Yes","5":"248"},{"1":"No","2":"0.99430598","3":"0.005694019","4":"No","5":"252"},{"1":"No","2":"0.99529970","3":"0.004700303","4":"No","5":"270"},{"1":"No","2":"0.96349351","3":"0.036506493","4":"No","5":"273"},{"1":"No","2":"0.90268851","3":"0.097311490","4":"Yes","5":"291"},{"1":"No","2":"0.97943900","3":"0.020560999","4":"No","5":"307"},{"1":"No","2":"0.97934167","3":"0.020658331","4":"No","5":"309"},{"1":"No","2":"0.83347584","3":"0.166524160","4":"No","5":"311"},{"1":"No","2":"0.98307152","3":"0.016928476","4":"No","5":"312"},{"1":"No","2":"0.86772227","3":"0.132277730","4":"No","5":"314"},{"1":"No","2":"0.76916965","3":"0.230830350","4":"No","5":"321"},{"1":"No","2":"0.98486453","3":"0.015135473","4":"No","5":"327"},{"1":"No","2":"0.85600213","3":"0.143997873","4":"No","5":"333"},{"1":"No","2":"0.97553326","3":"0.024466743","4":"No","5":"334"},{"1":"No","2":"0.97905667","3":"0.020943327","4":"No","5":"361"},{"1":"No","2":"0.97512092","3":"0.024879075","4":"No","5":"367"},{"1":"No","2":"0.78781801","3":"0.212181992","4":"No","5":"382"},{"1":"Yes","2":"0.60244945","3":"0.397550547","4":"No","5":"390"},{"1":"No","2":"0.98314918","3":"0.016850820","4":"No","5":"395"},{"1":"No","2":"0.96572927","3":"0.034270734","4":"No","5":"406"},{"1":"No","2":"0.95929209","3":"0.040707905","4":"No","5":"412"},{"1":"No","2":"0.99336100","3":"0.006639001","4":"No","5":"417"},{"1":"No","2":"0.96577118","3":"0.034228815","4":"No","5":"422"},{"1":"No","2":"0.95396562","3":"0.046034380","4":"Yes","5":"433"},{"1":"No","2":"0.88692346","3":"0.113076537","4":"No","5":"444"},{"1":"No","2":"0.86245852","3":"0.137541481","4":"No","5":"451"},{"1":"No","2":"0.97975719","3":"0.020242814","4":"No","5":"452"},{"1":"No","2":"0.95795324","3":"0.042046756","4":"No","5":"456"},{"1":"No","2":"0.96617253","3":"0.033827474","4":"No","5":"465"},{"1":"No","2":"0.81597835","3":"0.184021651","4":"No","5":"467"},{"1":"No","2":"0.94764702","3":"0.052352982","4":"No","5":"474"},{"1":"No","2":"0.96737317","3":"0.032626829","4":"No","5":"486"},{"1":"No","2":"0.98581963","3":"0.014180371","4":"No","5":"487"},{"1":"No","2":"0.86927525","3":"0.130724750","4":"No","5":"495"},{"1":"No","2":"0.94598293","3":"0.054017071","4":"No","5":"496"},{"1":"No","2":"0.82708159","3":"0.172918411","4":"Yes","5":"510"},{"1":"No","2":"0.82994842","3":"0.170051581","4":"No","5":"513"},{"1":"No","2":"0.85120206","3":"0.148797937","4":"Yes","5":"538"},{"1":"No","2":"0.97726914","3":"0.022730860","4":"No","5":"547"},{"1":"No","2":"0.87905953","3":"0.120940469","4":"No","5":"549"},{"1":"No","2":"0.99822708","3":"0.001772918","4":"No","5":"550"},{"1":"No","2":"0.99568929","3":"0.004310709","4":"No","5":"558"},{"1":"No","2":"0.93117643","3":"0.068823575","4":"No","5":"567"},{"1":"No","2":"0.95154173","3":"0.048458273","4":"No","5":"568"},{"1":"No","2":"0.98973380","3":"0.010266202","4":"No","5":"574"},{"1":"No","2":"0.98798481","3":"0.012015191","4":"No","5":"579"},{"1":"No","2":"0.99603985","3":"0.003960155","4":"No","5":"581"},{"1":"No","2":"0.83541801","3":"0.164581994","4":"No","5":"591"},{"1":"No","2":"0.95064613","3":"0.049353868","4":"No","5":"623"},{"1":"No","2":"0.97326376","3":"0.026736245","4":"No","5":"671"},{"1":"No","2":"0.95965361","3":"0.040346386","4":"No","5":"679"},{"1":"No","2":"0.97062228","3":"0.029377722","4":"No","5":"690"},{"1":"No","2":"0.97861447","3":"0.021385533","4":"No","5":"691"},{"1":"No","2":"0.98741232","3":"0.012587683","4":"No","5":"692"},{"1":"No","2":"0.66092029","3":"0.339079714","4":"Yes","5":"701"},{"1":"Yes","2":"0.20675249","3":"0.793247506","4":"Yes","5":"702"},{"1":"No","2":"0.98522632","3":"0.014773676","4":"No","5":"707"},{"1":"No","2":"0.96144313","3":"0.038556871","4":"No","5":"712"},{"1":"No","2":"0.97616912","3":"0.023830885","4":"No","5":"714"},{"1":"No","2":"0.86507543","3":"0.134924568","4":"No","5":"716"},{"1":"No","2":"0.97196357","3":"0.028036431","4":"No","5":"733"},{"1":"No","2":"0.98640700","3":"0.013592996","4":"No","5":"734"},{"1":"No","2":"0.85708872","3":"0.142911282","4":"No","5":"758"},{"1":"No","2":"0.97515308","3":"0.024846919","4":"No","5":"775"},{"1":"No","2":"0.85065869","3":"0.149341311","4":"No","5":"784"},{"1":"No","2":"0.98520387","3":"0.014796131","4":"No","5":"786"},{"1":"Yes","2":"0.53581461","3":"0.464185389","4":"Yes","5":"796"},{"1":"No","2":"0.98247522","3":"0.017524779","4":"No","5":"820"},{"1":"No","2":"0.86995646","3":"0.130043542","4":"Yes","5":"825"},{"1":"No","2":"0.89633471","3":"0.103665291","4":"No","5":"834"},{"1":"No","2":"0.90228773","3":"0.097712270","4":"No","5":"837"},{"1":"No","2":"0.96359402","3":"0.036405983","4":"Yes","5":"840"},{"1":"No","2":"0.91759374","3":"0.082406259","4":"No","5":"861"},{"1":"No","2":"0.87782651","3":"0.122173492","4":"No","5":"862"},{"1":"No","2":"0.64041367","3":"0.359586334","4":"No","5":"879"},{"1":"No","2":"0.90923226","3":"0.090767735","4":"No","5":"895"},{"1":"Yes","2":"0.34709676","3":"0.652903243","4":"No","5":"913"},{"1":"No","2":"0.79960581","3":"0.200394188","4":"Yes","5":"927"},{"1":"No","2":"0.95803254","3":"0.041967456","4":"No","5":"930"},{"1":"No","2":"0.96480923","3":"0.035190774","4":"No","5":"940"},{"1":"No","2":"0.97383891","3":"0.026161089","4":"No","5":"949"},{"1":"Yes","2":"0.21135565","3":"0.788644350","4":"Yes","5":"960"},{"1":"Yes","2":"0.35704044","3":"0.642959560","4":"Yes","5":"970"},{"1":"No","2":"0.96006210","3":"0.039937895","4":"No","5":"981"},{"1":"No","2":"0.67383220","3":"0.326167801","4":"Yes","5":"986"},{"1":"No","2":"0.99049565","3":"0.009504352","4":"No","5":"996"},{"1":"No","2":"0.97856463","3":"0.021435367","4":"No","5":"1005"},{"1":"No","2":"0.78780422","3":"0.212195776","4":"No","5":"1014"},{"1":"Yes","2":"0.27121458","3":"0.728785423","4":"Yes","5":"1016"},{"1":"No","2":"0.99126298","3":"0.008737023","4":"No","5":"1018"},{"1":"Yes","2":"0.50643692","3":"0.493563077","4":"No","5":"1019"},{"1":"No","2":"0.91994594","3":"0.080054055","4":"No","5":"1034"},{"1":"No","2":"0.68675013","3":"0.313249869","4":"No","5":"1055"},{"1":"Yes","2":"0.54806919","3":"0.451930815","4":"Yes","5":"1079"},{"1":"No","2":"0.93487719","3":"0.065122810","4":"Yes","5":"1098"},{"1":"Yes","2":"0.52286162","3":"0.477138384","4":"Yes","5":"1107"},{"1":"No","2":"0.98302394","3":"0.016976057","4":"No","5":"1114"},{"1":"No","2":"0.96415365","3":"0.035846353","4":"No","5":"1115"},{"1":"No","2":"0.83128343","3":"0.168716568","4":"No","5":"1136"},{"1":"No","2":"0.94222051","3":"0.057779487","4":"No","5":"1150"},{"1":"No","2":"0.88490554","3":"0.115094462","4":"Yes","5":"1165"},{"1":"No","2":"0.92235729","3":"0.077642710","4":"No","5":"1179"},{"1":"No","2":"0.85157967","3":"0.148420334","4":"No","5":"1185"},{"1":"No","2":"0.86565662","3":"0.134343377","4":"Yes","5":"1200"},{"1":"No","2":"0.90212366","3":"0.097876344","4":"No","5":"1207"},{"1":"No","2":"0.65443519","3":"0.345564807","4":"Yes","5":"1210"},{"1":"No","2":"0.87122715","3":"0.128772848","4":"No","5":"1211"},{"1":"No","2":"0.75179081","3":"0.248209194","4":"No","5":"1234"},{"1":"No","2":"0.98704771","3":"0.012952287","4":"No","5":"1238"},{"1":"Yes","2":"0.52473420","3":"0.475265798","4":"No","5":"1244"},{"1":"No","2":"0.98095166","3":"0.019048341","4":"No","5":"1256"},{"1":"No","2":"0.93561646","3":"0.064383542","4":"No","5":"1257"},{"1":"No","2":"0.89945056","3":"0.100549441","4":"No","5":"1265"},{"1":"Yes","2":"0.06775375","3":"0.932246251","4":"Yes","5":"1273"},{"1":"No","2":"0.87825701","3":"0.121742986","4":"No","5":"1278"},{"1":"No","2":"0.96252926","3":"0.037470738","4":"No","5":"1306"},{"1":"No","2":"0.93772872","3":"0.062271282","4":"No","5":"1317"},{"1":"Yes","2":"0.22670572","3":"0.773294279","4":"Yes","5":"1318"},{"1":"No","2":"0.98467608","3":"0.015323920","4":"No","5":"1338"},{"1":"No","2":"0.99259856","3":"0.007401439","4":"No","5":"1346"},{"1":"No","2":"0.97293878","3":"0.027061216","4":"No","5":"1349"},{"1":"No","2":"0.85808700","3":"0.141913002","4":"No","5":"1350"},{"1":"Yes","2":"0.46912834","3":"0.530871662","4":"Yes","5":"1379"},{"1":"No","2":"0.63864132","3":"0.361358679","4":"No","5":"1403"},{"1":"No","2":"0.95529140","3":"0.044708599","4":"No","5":"1431"},{"1":"No","2":"0.94423604","3":"0.055763956","4":"No","5":"1435"},{"1":"No","2":"0.74220858","3":"0.257791415","4":"No","5":"1440"},{"1":"No","2":"0.74647502","3":"0.253524985","4":"No","5":"1465"},{"1":"No","2":"0.91225957","3":"0.087740433","4":"No","5":"1466"},{"1":"No","2":"0.86113342","3":"0.138866585","4":"No","5":"1481"},{"1":"No","2":"0.87695229","3":"0.123047710","4":"No","5":"1482"},{"1":"No","2":"0.94427135","3":"0.055728652","4":"No","5":"1485"},{"1":"Yes","2":"0.25276421","3":"0.747235795","4":"Yes","5":"1504"},{"1":"No","2":"0.88391074","3":"0.116089256","4":"No","5":"1507"},{"1":"No","2":"0.94278132","3":"0.057218680","4":"No","5":"1513"},{"1":"Yes","2":"0.47456150","3":"0.525438504","4":"Yes","5":"1522"},{"1":"No","2":"0.75342277","3":"0.246577229","4":"Yes","5":"1534"},{"1":"No","2":"0.77916377","3":"0.220836227","4":"Yes","5":"1537"},{"1":"No","2":"0.97350739","3":"0.026492614","4":"No","5":"1543"},{"1":"No","2":"0.84701180","3":"0.152988196","4":"No","5":"1547"},{"1":"No","2":"0.92840026","3":"0.071599739","4":"No","5":"1563"},{"1":"No","2":"0.98586179","3":"0.014138212","4":"No","5":"1578"},{"1":"No","2":"0.96011633","3":"0.039883675","4":"No","5":"1601"},{"1":"Yes","2":"0.26276672","3":"0.737233277","4":"Yes","5":"1604"},{"1":"No","2":"0.76559718","3":"0.234402819","4":"No","5":"1612"},{"1":"No","2":"0.97554999","3":"0.024450007","4":"No","5":"1615"},{"1":"Yes","2":"0.17117803","3":"0.828821966","4":"Yes","5":"1624"},{"1":"No","2":"0.88391578","3":"0.116084220","4":"No","5":"1633"},{"1":"No","2":"0.99690114","3":"0.003098860","4":"No","5":"1635"},{"1":"No","2":"0.95262081","3":"0.047379190","4":"No","5":"1638"},{"1":"Yes","2":"0.43862926","3":"0.561370739","4":"Yes","5":"1645"},{"1":"No","2":"0.74629205","3":"0.253707955","4":"No","5":"1647"},{"1":"No","2":"0.93763244","3":"0.062367562","4":"No","5":"1682"},{"1":"No","2":"0.87101826","3":"0.128981745","4":"Yes","5":"1691"},{"1":"No","2":"0.99073116","3":"0.009268836","4":"No","5":"1697"},{"1":"No","2":"0.94167733","3":"0.058322670","4":"No","5":"1724"},{"1":"No","2":"0.96290812","3":"0.037091882","4":"No","5":"1732"},{"1":"No","2":"0.99162133","3":"0.008378667","4":"No","5":"1771"},{"1":"No","2":"0.68004352","3":"0.319956484","4":"Yes","5":"1783"},{"1":"No","2":"0.78248916","3":"0.217510837","4":"No","5":"1790"},{"1":"No","2":"0.63245982","3":"0.367540179","4":"Yes","5":"1797"},{"1":"No","2":"0.96363073","3":"0.036369274","4":"No","5":"1798"},{"1":"No","2":"0.96874076","3":"0.031259243","4":"No","5":"1803"},{"1":"No","2":"0.82585983","3":"0.174140171","4":"No","5":"1813"},{"1":"No","2":"0.76989138","3":"0.230108616","4":"Yes","5":"1818"},{"1":"No","2":"0.93478357","3":"0.065216434","4":"No","5":"1854"},{"1":"No","2":"0.99303780","3":"0.006962196","4":"No","5":"1863"},{"1":"No","2":"0.85458338","3":"0.145416624","4":"No","5":"1883"},{"1":"No","2":"0.97012347","3":"0.029876530","4":"No","5":"1898"},{"1":"No","2":"0.94311024","3":"0.056889761","4":"No","5":"1918"},{"1":"No","2":"0.97970513","3":"0.020294871","4":"No","5":"1922"},{"1":"Yes","2":"0.14879109","3":"0.851208908","4":"Yes","5":"1928"},{"1":"No","2":"0.99071709","3":"0.009282915","4":"No","5":"1937"},{"1":"No","2":"0.99422943","3":"0.005770573","4":"No","5":"1941"},{"1":"No","2":"0.94273441","3":"0.057265588","4":"No","5":"1947"},{"1":"No","2":"0.86402684","3":"0.135973163","4":"No","5":"1948"},{"1":"No","2":"0.79612379","3":"0.203876208","4":"No","5":"1950"},{"1":"No","2":"0.97427577","3":"0.025724235","4":"No","5":"1951"},{"1":"Yes","2":"0.60419995","3":"0.395800053","4":"Yes","5":"1967"},{"1":"No","2":"0.98856642","3":"0.011433580","4":"No","5":"1979"},{"1":"No","2":"0.98541098","3":"0.014589023","4":"No","5":"1989"},{"1":"No","2":"0.86218801","3":"0.137811990","4":"No","5":"1994"},{"1":"No","2":"0.93679268","3":"0.063207316","4":"No","5":"1998"},{"1":"No","2":"0.94075453","3":"0.059245474","4":"No","5":"2019"},{"1":"No","2":"0.98382637","3":"0.016173626","4":"No","5":"2041"},{"1":"No","2":"0.91625548","3":"0.083744517","4":"No","5":"2068"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>test_tbl %&gt;%
+  slice(1) %&gt;%
+  glimpse()</code></pre>
+<pre><code>## Rows: 1
+## Columns: 32
+## $ Age                      &lt;dbl&gt; 59
+## $ BusinessTravel           &lt;fct&gt; Travel_Rarely
+## $ DailyRate                &lt;dbl&gt; 1324
+## $ Department               &lt;fct&gt; Research &amp; Development
+## $ DistanceFromHome         &lt;dbl&gt; 3
+## $ Education                &lt;fct&gt; Bachelor
+## $ EducationField           &lt;fct&gt; Medical
+## $ EmployeeNumber           &lt;dbl&gt; 10
+## $ EnvironmentSatisfaction  &lt;fct&gt; High
+## $ Gender                   &lt;fct&gt; Female
+## $ HourlyRate               &lt;dbl&gt; 81
+## $ JobInvolvement           &lt;fct&gt; Very High
+## $ JobLevel                 &lt;fct&gt; 1
+## $ JobRole                  &lt;fct&gt; Laboratory Technician
+## $ JobSatisfaction          &lt;fct&gt; Low
+## $ MaritalStatus            &lt;fct&gt; Married
+## $ MonthlyIncome            &lt;dbl&gt; 2670
+## $ MonthlyRate              &lt;dbl&gt; 9964
+## $ NumCompaniesWorked       &lt;dbl&gt; 4
+## $ OverTime                 &lt;fct&gt; Yes
+## $ PercentSalaryHike        &lt;dbl&gt; 20
+## $ PerformanceRating        &lt;fct&gt; Outstanding
+## $ RelationshipSatisfaction &lt;fct&gt; Low
+## $ StockOptionLevel         &lt;fct&gt; 3
+## $ TotalWorkingYears        &lt;dbl&gt; 12
+## $ TrainingTimesLastYear    &lt;dbl&gt; 3
+## $ WorkLifeBalance          &lt;fct&gt; Good
+## $ YearsAtCompany           &lt;dbl&gt; 1
+## $ YearsInCurrentRole       &lt;dbl&gt; 0
+## $ YearsSinceLastPromotion  &lt;dbl&gt; 0
+## $ YearsWithCurrManager     &lt;dbl&gt; 0
+## $ Attrition                &lt;fct&gt; No</code></pre>
+<pre class="r"><code>explainer &lt;- train_tbl %&gt;%
+  select(-Attrition) %&gt;%
+  lime(
+    model           = automl_leader,
+    bin_continuous  = TRUE,
+    n_bins          = 4,
+    quantile_bins   = TRUE
+  )
+
+explainer</code></pre>
+<pre><code>## $model
+## Model Details:
+## ==============
+## 
+## H2OBinomialModel: stackedensemble
+## Model ID:  StackedEnsemble_AllModels_AutoML_20210603_180133 
+## Number of Base Models: 15
+## 
+## Base Models (count by algorithm type):
+## 
+## deeplearning          drf          gbm          glm 
+##            3            2            9            1 
+## 
+## Metalearner:
+## 
+## Metalearner algorithm: glm
+## Metalearner cross-validation fold assignment:
+##   Fold assignment scheme: AUTO
+##   Number of folds: 5
+##   Fold column: NULL
+## Metalearner hyperparameters: 
+## 
+## 
+## H2OBinomialMetrics: stackedensemble
+## ** Reported on training data. **
+## 
+## MSE:  0.0452544
+## RMSE:  0.2127308
+## LogLoss:  0.1781353
+## Mean Per-Class Error:  0.1173782
+## AUC:  0.9566841
+## AUCPR:  0.9009024
+## Gini:  0.9133681
+## 
+## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+##         No Yes    Error      Rate
+## No     895  14 0.015402   =14/909
+## Yes     34 121 0.219355   =34/155
+## Totals 929 135 0.045113  =48/1064
+## 
+## Maximum Metrics: Maximum metrics at their respective thresholds
+##                         metric threshold      value idx
+## 1                       max f1  0.392735   0.834483 108
+## 2                       max f2  0.263808   0.854115 142
+## 3                 max f0point5  0.492150   0.897638  94
+## 4                 max accuracy  0.492150   0.955827  94
+## 5                max precision  0.976915   1.000000   0
+## 6                   max recall  0.010541   1.000000 378
+## 7              max specificity  0.976915   1.000000   0
+## 8             max absolute_mcc  0.492150   0.812885  94
+## 9   max min_per_class_accuracy  0.210393   0.909677 163
+## 10 max mean_per_class_accuracy  0.263808   0.917183 142
+## 11                     max tns  0.976915 909.000000   0
+## 12                     max fns  0.976915 154.000000   0
+## 13                     max fps  0.000808 909.000000 399
+## 14                     max tps  0.010541 155.000000 378
+## 15                     max tnr  0.976915   1.000000   0
+## 16                     max fnr  0.976915   0.993548   0
+## 17                     max fpr  0.000808   1.000000 399
+## 18                     max tpr  0.010541   1.000000 378
+## 
+## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+## H2OBinomialMetrics: stackedensemble
+## ** Reported on validation data. **
+## 
+## MSE:  0.101822
+## RMSE:  0.3190956
+## LogLoss:  0.3353811
+## Mean Per-Class Error:  0.211869
+## AUC:  0.8648407
+## AUCPR:  0.7146159
+## Gini:  0.7296813
+## 
+## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+##         No Yes    Error     Rate
+## No     135  12 0.081633  =12/147
+## Yes     13  25 0.342105   =13/38
+## Totals 148  37 0.135135  =25/185
+## 
+## Maximum Metrics: Maximum metrics at their respective thresholds
+##                         metric threshold      value idx
+## 1                       max f1  0.376665   0.666667  36
+## 2                       max f2  0.185421   0.714286  57
+## 3                 max f0point5  0.428897   0.714286  28
+## 4                 max accuracy  0.428897   0.875676  28
+## 5                max precision  0.953668   1.000000   0
+## 6                   max recall  0.018246   1.000000 147
+## 7              max specificity  0.953668   1.000000   0
+## 8             max absolute_mcc  0.416933   0.595848  30
+## 9   max min_per_class_accuracy  0.185421   0.789474  57
+## 10 max mean_per_class_accuracy  0.287037   0.800841  42
+## 11                     max tns  0.953668 147.000000   0
+## 12                     max fns  0.953668  37.000000   0
+## 13                     max fps  0.001755 147.000000 184
+## 14                     max tps  0.018246  38.000000 147
+## 15                     max tnr  0.953668   1.000000   0
+## 16                     max fnr  0.953668   0.973684   0
+## 17                     max fpr  0.001755   1.000000 184
+## 18                     max tpr  0.018246   1.000000 147
+## 
+## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+## H2OBinomialMetrics: stackedensemble
+## ** Reported on cross-validation data. **
+## ** 5-fold cross-validation on training data (Metrics computed for combined holdout predictions) **
+## 
+## MSE:  0.08438538
+## RMSE:  0.2904916
+## LogLoss:  0.2977415
+## Mean Per-Class Error:  0.2212002
+## AUC:  0.8424181
+## AUCPR:  0.6084119
+## Gini:  0.6848362
+## 
+## Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+##         No Yes    Error       Rate
+## No     847  62 0.068207    =62/909
+## Yes     58  97 0.374194    =58/155
+## Totals 905 159 0.112782  =120/1064
+## 
+## Maximum Metrics: Maximum metrics at their respective thresholds
+##                         metric threshold      value idx
+## 1                       max f1  0.299829   0.617834 129
+## 2                       max f2  0.210326   0.639671 175
+## 3                 max f0point5  0.438545   0.652952  85
+## 4                 max accuracy  0.438545   0.896617  85
+## 5                max precision  0.979771   1.000000   0
+## 6                   max recall  0.000648   1.000000 399
+## 7              max specificity  0.979771   1.000000   0
+## 8             max absolute_mcc  0.299829   0.551756 129
+## 9   max min_per_class_accuracy  0.135997   0.767877 222
+## 10 max mean_per_class_accuracy  0.210326   0.783956 175
+## 11                     max tns  0.979771 909.000000   0
+## 12                     max fns  0.979771 154.000000   0
+## 13                     max fps  0.000648 909.000000 399
+## 14                     max tps  0.000648 155.000000 399
+## 15                     max tnr  0.979771   1.000000   0
+## 16                     max fnr  0.979771   0.993548   0
+## 17                     max fpr  0.000648   1.000000 399
+## 18                     max tpr  0.000648   1.000000 399
+## 
+## Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+## 
+## $preprocess
+## function (x) 
+## x
+## &lt;bytecode: 0x000000002601ff18&gt;
+## &lt;environment: 0x0000000026013fe8&gt;
+## 
+## $bin_continuous
+## [1] TRUE
+## 
+## $n_bins
+## [1] 4
+## 
+## $quantile_bins
+## [1] TRUE
+## 
+## $use_density
+## [1] TRUE
+## 
+## $feature_type
+##                      Age           BusinessTravel                DailyRate 
+##                &quot;numeric&quot;                 &quot;factor&quot;                &quot;numeric&quot; 
+##               Department         DistanceFromHome                Education 
+##                 &quot;factor&quot;                &quot;numeric&quot;                 &quot;factor&quot; 
+##           EducationField           EmployeeNumber  EnvironmentSatisfaction 
+##                 &quot;factor&quot;                &quot;numeric&quot;                 &quot;factor&quot; 
+##                   Gender               HourlyRate           JobInvolvement 
+##                 &quot;factor&quot;                &quot;numeric&quot;                 &quot;factor&quot; 
+##                 JobLevel                  JobRole          JobSatisfaction 
+##                 &quot;factor&quot;                 &quot;factor&quot;                 &quot;factor&quot; 
+##            MaritalStatus            MonthlyIncome              MonthlyRate 
+##                 &quot;factor&quot;                &quot;numeric&quot;                &quot;numeric&quot; 
+##       NumCompaniesWorked                 OverTime        PercentSalaryHike 
+##                &quot;numeric&quot;                 &quot;factor&quot;                &quot;numeric&quot; 
+##        PerformanceRating RelationshipSatisfaction         StockOptionLevel 
+##                 &quot;factor&quot;                 &quot;factor&quot;                 &quot;factor&quot; 
+##        TotalWorkingYears    TrainingTimesLastYear          WorkLifeBalance 
+##                &quot;numeric&quot;                &quot;numeric&quot;                 &quot;factor&quot; 
+##           YearsAtCompany       YearsInCurrentRole  YearsSinceLastPromotion 
+##                &quot;numeric&quot;                &quot;numeric&quot;                &quot;numeric&quot; 
+##     YearsWithCurrManager 
+##                &quot;numeric&quot; 
+## 
+## $bin_cuts
+## $bin_cuts$Age
+##   0%  25%  50%  75% 100% 
+##   18   30   36   43   60 
+## 
+## $bin_cuts$BusinessTravel
+## NULL
+## 
+## $bin_cuts$DailyRate
+##   0%  25%  50%  75% 100% 
+##  102  465  797 1147 1499 
+## 
+## $bin_cuts$Department
+## NULL
+## 
+## $bin_cuts$DistanceFromHome
+##   0%  25%  50%  75% 100% 
+##    1    2    7   14   29 
+## 
+## $bin_cuts$Education
+## NULL
+## 
+## $bin_cuts$EducationField
+## NULL
+## 
+## $bin_cuts$EmployeeNumber
+##   0%  25%  50%  75% 100% 
+##    1  511 1040 1573 2065 
+## 
+## $bin_cuts$EnvironmentSatisfaction
+## NULL
+## 
+## $bin_cuts$Gender
+## NULL
+## 
+## $bin_cuts$HourlyRate
+##   0%  25%  50%  75% 100% 
+##   30   49   66   83  100 
+## 
+## $bin_cuts$JobInvolvement
+## NULL
+## 
+## $bin_cuts$JobLevel
+## NULL
+## 
+## $bin_cuts$JobRole
+## NULL
+## 
+## $bin_cuts$JobSatisfaction
+## NULL
+## 
+## $bin_cuts$MaritalStatus
+## NULL
+## 
+## $bin_cuts$MonthlyIncome
+##    0%   25%   50%   75%  100% 
+##  1051  2929  4908  8474 19999 
+## 
+## $bin_cuts$MonthlyRate
+##    0%   25%   50%   75%  100% 
+##  2094  8423 14470 20689 26968 
+## 
+## $bin_cuts$NumCompaniesWorked
+##   0%  25%  50%  75% 100% 
+##    0    1    2    4    9 
+## 
+## $bin_cuts$OverTime
+## NULL
+## 
+## $bin_cuts$PercentSalaryHike
+##   0%  25%  50%  75% 100% 
+##   11   12   14   18   25 
+## 
+## $bin_cuts$PerformanceRating
+## NULL
+## 
+## $bin_cuts$RelationshipSatisfaction
+## NULL
+## 
+## $bin_cuts$StockOptionLevel
+## NULL
+## 
+## $bin_cuts$TotalWorkingYears
+##   0%  25%  50%  75% 100% 
+##    0    6   10   15   38 
+## 
+## $bin_cuts$TrainingTimesLastYear
+##   0%  25%  50% 100% 
+##    0    2    3    6 
+## 
+## $bin_cuts$WorkLifeBalance
+## NULL
+## 
+## $bin_cuts$YearsAtCompany
+##   0%  25%  50%  75% 100% 
+##    0    3    5    9   37 
+## 
+## $bin_cuts$YearsInCurrentRole
+##   0%  25%  50%  75% 100% 
+##    0    2    3    7   18 
+## 
+## $bin_cuts$YearsSinceLastPromotion
+##   0%  50%  75% 100% 
+##    0    1    2   15 
+## 
+## $bin_cuts$YearsWithCurrManager
+##   0%  25%  50%  75% 100% 
+##    0    2    3    7   17 
+## 
+## 
+## $feature_distribution
+## $feature_distribution$Age
+## 
+##         1         2         3         4 
+## 0.2602082 0.2834267 0.2217774 0.2345877 
+## 
+## $feature_distribution$BusinessTravel
+## 
+##        Non-Travel     Travel_Rarely Travel_Frequently 
+##         0.1000801         0.7181745         0.1817454 
+## 
+## $feature_distribution$DailyRate
+## 
+##         1         2         3         4 
+## 0.2514011 0.2489992 0.2497998 0.2497998 
+## 
+## $feature_distribution$Department
+## 
+##        Human Resources Research &amp; Development                  Sales 
+##             0.04323459             0.65092074             0.30584468 
+## 
+## $feature_distribution$DistanceFromHome
+## 
+##         1         2         3         4 
+## 0.2954363 0.2369896 0.2241793 0.2433947 
+## 
+## $feature_distribution$Education
+## 
+## Below College       College      Bachelor        Master        Doctor 
+##    0.11689351    0.18895116    0.38510809    0.27461970    0.03442754 
+## 
+## $feature_distribution$EducationField
+## 
+##  Human Resources    Life Sciences        Marketing          Medical 
+##       0.01761409       0.41793435       0.10888711       0.31144916 
+##            Other Technical Degree 
+##       0.05444355       0.08967174 
+## 
+## $feature_distribution$EmployeeNumber
+## 
+##         1         2         3         4 
+## 0.2506005 0.2497998 0.2497998 0.2497998 
+## 
+## $feature_distribution$EnvironmentSatisfaction
+## 
+##       Low    Medium      High Very High 
+## 0.1913531 0.1961569 0.3018415 0.3106485 
+## 
+## $feature_distribution$Gender
+## 
+##    Female      Male 
+## 0.4123299 0.5876701 
+## 
+## $feature_distribution$HourlyRate
+## 
+##         1         2         3         4 
+## 0.2618094 0.2473979 0.2449960 0.2457966 
+## 
+## $feature_distribution$JobInvolvement
+## 
+##        Low     Medium       High  Very High 
+## 0.05684548 0.25780624 0.58927142 0.09607686 
+## 
+## $feature_distribution$JobLevel
+## 
+##          1          2          3          4          5 
+## 0.36829464 0.36509207 0.14651721 0.07526021 0.04483587 
+## 
+## $feature_distribution$JobRole
+## 
+## Healthcare Representative           Human Resources     Laboratory Technician 
+##                0.08646918                0.03682946                0.18174540 
+##                   Manager    Manufacturing Director         Research Director 
+##                0.06885508                0.09927942                0.05924740 
+##        Research Scientist           Sales Executive      Sales Representative 
+##                0.18654924                0.22337870                0.05764612 
+## 
+## $feature_distribution$JobSatisfaction
+## 
+##       Low    Medium      High Very High 
+## 0.1873499 0.1985588 0.3018415 0.3122498 
+## 
+## $feature_distribution$MaritalStatus
+## 
+##    Single   Married  Divorced 
+## 0.3306645 0.4571657 0.2121697 
+## 
+## $feature_distribution$MonthlyIncome
+## 
+##         1         2         3         4 
+## 0.2506005 0.2497998 0.2497998 0.2497998 
+## 
+## $feature_distribution$MonthlyRate
+## 
+##         1         2         3         4 
+## 0.2506005 0.2497998 0.2497998 0.2497998 
+## 
+## $feature_distribution$NumCompaniesWorked
+## 
+##          1          2          3          4 
+## 0.48118495 0.09927942 0.20496397 0.21457166 
+## 
+## $feature_distribution$OverTime
+## 
+##        No       Yes 
+## 0.7165733 0.2834267 
+## 
+## $feature_distribution$PercentSalaryHike
+## 
+##         1         2         3         4 
+## 0.2866293 0.2738191 0.2289832 0.2105685 
+## 
+## $feature_distribution$PerformanceRating
+## 
+##         Low        Good   Excellent Outstanding 
+##   0.0000000   0.0000000   0.8414732   0.1585268 
+## 
+## $feature_distribution$RelationshipSatisfaction
+## 
+##       Low    Medium      High Very High 
+## 0.1889512 0.2161729 0.3018415 0.2930344 
+## 
+## $feature_distribution$StockOptionLevel
+## 
+##          0          1          2          3 
+## 0.43554844 0.40592474 0.10168135 0.05684548 
+## 
+## $feature_distribution$TotalWorkingYears
+## 
+##         1         2         3         4 
+## 0.3050440 0.3306645 0.1224980 0.2417934 
+## 
+## $feature_distribution$TrainingTimesLastYear
+## 
+##         1         2         3 
+## 0.4603683 0.3306645 0.2089672 
+## 
+## $feature_distribution$WorkLifeBalance
+## 
+##        Bad       Good     Better       Best 
+## 0.05204163 0.22497998 0.61889512 0.10408327 
+## 
+## $feature_distribution$YearsAtCompany
+## 
+##         1         2         3         4 
+## 0.3226581 0.2137710 0.2217774 0.2417934 
+## 
+## $feature_distribution$YearsInCurrentRole
+## 
+##          1          2          3          4 
+## 0.46757406 0.08726982 0.27542034 0.16973579 
+## 
+## $feature_distribution$YearsSinceLastPromotion
+## 
+##         1         2         3 
+## 0.6413131 0.1120897 0.2465973 
+## 
+## $feature_distribution$YearsWithCurrManager
+## 
+##          1          2          3          4 
+## 0.46357086 0.09767814 0.25300240 0.18574860 
+## 
+## 
+## attr(,&quot;class&quot;)
+## [1] &quot;data_frame_explainer&quot; &quot;explainer&quot;            &quot;list&quot;</code></pre>
+<pre class="r"><code>?lime::explain
+
+explanation &lt;- test_tbl %&gt;%
+  slice(1) %&gt;%
+  select(-Attrition) %&gt;%
+  lime::explain(
+    
+    # Pass our explainer object
+    explainer = explainer,
+    # Because it is a binary classification model: 1
+    n_labels   = 1,
+    # number of features to be returned
+    n_features = 8,
+    # number of localized linear models
+    n_permutations = 5000,
+    # Let&#39;s start with 1
+    kernel_width   = 1
+  )</code></pre>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%
+## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<pre class="r"><code>explanation</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["model_type"],"name":[1],"type":["chr"],"align":["left"]},{"label":["case"],"name":[2],"type":["chr"],"align":["left"]},{"label":["label"],"name":[3],"type":["chr"],"align":["left"]},{"label":["label_prob"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["model_r2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["model_intercept"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["model_prediction"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["feature"],"name":[8],"type":["chr"],"align":["left"]},{"label":["feature_value"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["feature_weight"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["feature_desc"],"name":[11],"type":["chr"],"align":["left"]},{"label":["data"],"name":[12],"type":["list"],"align":["right"]},{"label":["prediction"],"name":[13],"type":["list"],"align":["right"]}],"data":[{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.3237838","6":"0.8554696","7":"0.5893169","8":"OverTime","9":"2","10":"-0.20552518","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.3237838","6":"0.8554696","7":"0.5893169","8":"JobLevel","9":"1","10":"-0.07922413","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.3237838","6":"0.8554696","7":"0.5893169","8":"YearsSinceLastPromotion","9":"0","10":"0.07644474","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.3237838","6":"0.8554696","7":"0.5893169","8":"JobSatisfaction","9":"1","10":"-0.05847583","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.3237838","6":"0.8554696","7":"0.5893169","8":"RelationshipSatisfaction","9":"1","10":"-0.05929796","11":"RelationshipSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.3237838","6":"0.8554696","7":"0.5893169","8":"Age","9":"59","10":"0.05413004","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.3237838","6":"0.8554696","7":"0.5893169","8":"Department","9":"2","10":"0.05499874","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.3237838","6":"0.8554696","7":"0.5893169","8":"YearsWithCurrManager","9":"0","10":"-0.04920306","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>explanation %&gt;%
+  as.tibble() %&gt;%
+  select(feature:prediction) </code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["feature"],"name":[1],"type":["chr"],"align":["left"]},{"label":["feature_value"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["feature_weight"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["feature_desc"],"name":[4],"type":["chr"],"align":["left"]},{"label":["data"],"name":[5],"type":["list"],"align":["right"]},{"label":["prediction"],"name":[6],"type":["list"],"align":["right"]}],"data":[{"1":"OverTime","2":"2","3":"-0.20552518","4":"OverTime = Yes","5":"<named list [31]>","6":"<named list [2]>"},{"1":"JobLevel","2":"1","3":"-0.07922413","4":"JobLevel = 1","5":"<named list [31]>","6":"<named list [2]>"},{"1":"YearsSinceLastPromotion","2":"0","3":"0.07644474","4":"YearsSinceLastPromotion <= 1","5":"<named list [31]>","6":"<named list [2]>"},{"1":"JobSatisfaction","2":"1","3":"-0.05847583","4":"JobSatisfaction = Low","5":"<named list [31]>","6":"<named list [2]>"},{"1":"RelationshipSatisfaction","2":"1","3":"-0.05929796","4":"RelationshipSatisfaction = Low","5":"<named list [31]>","6":"<named list [2]>"},{"1":"Age","2":"59","3":"0.05413004","4":"43 < Age","5":"<named list [31]>","6":"<named list [2]>"},{"1":"Department","2":"2","3":"0.05499874","4":"Department = Research & Development","5":"<named list [31]>","6":"<named list [2]>"},{"1":"YearsWithCurrManager","2":"0","3":"-0.04920306","4":"YearsWithCurrManager <= 2","5":"<named list [31]>","6":"<named list [2]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>g &lt;- plot_features(explanation = explanation, ncol = 1)
+
+
+
+
+
+################ plot for multiple cases
+
+
+
+explanation &lt;- test_tbl %&gt;%
+  slice(1:20) %&gt;%
+  select(-Attrition) %&gt;%
+  lime::explain(
+    explainer = explainer,
+    n_labels   = 1,
+    n_features = 8,
+    n_permutations = 5000,
+    kernel_width   = 0.5
+  )</code></pre>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%
+## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<pre class="r"><code>explanation %&gt;%
+  as.tibble()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["model_type"],"name":[1],"type":["chr"],"align":["left"]},{"label":["case"],"name":[2],"type":["chr"],"align":["left"]},{"label":["label"],"name":[3],"type":["chr"],"align":["left"]},{"label":["label_prob"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["model_r2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["model_intercept"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["model_prediction"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["feature"],"name":[8],"type":["chr"],"align":["left"]},{"label":["feature_value"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["feature_weight"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["feature_desc"],"name":[11],"type":["chr"],"align":["left"]},{"label":["data"],"name":[12],"type":["list"],"align":["right"]},{"label":["prediction"],"name":[13],"type":["list"],"align":["right"]}],"data":[{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"OverTime","9":"2","10":"-0.20486428","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"YearsSinceLastPromotion","9":"0","10":"0.07109702","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"JobLevel","9":"1","10":"-0.06764292","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"JobSatisfaction","9":"1","10":"-0.06005510","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"RelationshipSatisfaction","9":"1","10":"-0.06000070","11":"RelationshipSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"Department","9":"2","10":"0.05710107","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"YearsWithCurrManager","9":"0","10":"-0.05094635","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"Age","9":"59","10":"0.04540107","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"OverTime","9":"1","10":"0.21173243","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"YearsSinceLastPromotion","9":"4","10":"-0.09735502","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"JobLevel","9":"1","10":"-0.08400073","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"EnvironmentSatisfaction","9":"1","10":"-0.07625257","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"TotalWorkingYears","9":"5","10":"-0.07574521","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"DistanceFromHome","9":"26","10":"-0.06980321","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"NumCompaniesWorked","9":"1","10":"0.06952586","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"JobRole","9":"7","10":"0.06082273","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"OverTime","9":"1","10":"0.20497952","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"StockOptionLevel","9":"1","10":"-0.07721732","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"YearsSinceLastPromotion","9":"0","10":"0.07488138","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"JobLevel","9":"1","10":"-0.07075761","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"TotalWorkingYears","9":"0","10":"-0.07599451","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"DistanceFromHome","9":"15","10":"-0.07100215","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"TrainingTimesLastYear","9":"6","10":"0.07101654","11":"3 < TrainingTimesLastYear","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"JobSatisfaction","9":"4","10":"0.06560708","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"OverTime","9":"1","10":"0.19381687","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"YearsSinceLastPromotion","9":"1","10":"0.07709306","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"StockOptionLevel","9":"1","10":"-0.06797084","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"JobSatisfaction","9":"1","10":"-0.06664982","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"JobLevel","9":"1","10":"-0.06599485","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"JobRole","9":"7","10":"0.05305993","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"TrainingTimesLastYear","9":"2","10":"-0.04333310","11":"TrainingTimesLastYear <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"Department","9":"2","10":"0.04243778","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"OverTime","9":"2","10":"-0.19867139","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"JobLevel","9":"2","10":"0.08488873","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"StockOptionLevel","9":"1","10":"-0.07850999","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"YearsSinceLastPromotion","9":"1","10":"0.07792712","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"JobSatisfaction","9":"4","10":"0.06611461","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"TrainingTimesLastYear","9":"5","10":"0.05351522","11":"3 < TrainingTimesLastYear","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"Department","9":"2","10":"0.05319349","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"EnvironmentSatisfaction","9":"4","10":"0.05028538","11":"EnvironmentSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"OverTime","9":"1","10":"0.19343361","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"TotalWorkingYears","9":"19","10":"0.10171903","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"JobLevel","9":"2","10":"0.08492591","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"YearsSinceLastPromotion","9":"0","10":"0.07542320","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"JobSatisfaction","9":"4","10":"0.07045807","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"StockOptionLevel","9":"2","10":"0.06544543","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"YearsWithCurrManager","9":"0","10":"-0.06336614","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"EducationField","9":"6","10":"-0.06146658","11":"EducationField = Technical Degree","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"OverTime","9":"1","10":"0.21431839","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"YearsSinceLastPromotion","9":"1","10":"0.07199454","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"JobLevel","9":"1","10":"-0.07071811","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"TotalWorkingYears","9":"6","10":"-0.06553926","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"JobRole","9":"7","10":"0.05515336","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"NumCompaniesWorked","9":"1","10":"0.05505231","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"EnvironmentSatisfaction","9":"4","10":"0.04930427","11":"EnvironmentSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"StockOptionLevel","9":"3","10":"0.04423658","11":"StockOptionLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"OverTime","9":"1","10":"-0.20502157","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"YearsSinceLastPromotion","9":"0","10":"-0.07982441","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"EnvironmentSatisfaction","9":"1","10":"0.07770665","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"TotalWorkingYears","9":"1","10":"0.08053787","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"JobLevel","9":"1","10":"0.07473476","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"StockOptionLevel","9":"1","10":"0.07203039","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"DistanceFromHome","9":"25","10":"0.06226196","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"JobInvolvement","9":"1","10":"0.06596546","11":"JobInvolvement = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"OverTime","9":"2","10":"0.21779809","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"TotalWorkingYears","9":"23","10":"-0.10393642","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"EnvironmentSatisfaction","9":"1","10":"0.09510076","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"NumCompaniesWorked","9":"9","10":"0.08927216","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"YearsSinceLastPromotion","9":"0","10":"-0.07927827","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"StockOptionLevel","9":"1","10":"0.07725895","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"Department","9":"2","10":"-0.05601542","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"YearsWithCurrManager","9":"0","10":"0.04967079","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"OverTime","9":"1","10":"0.20305438","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"EnvironmentSatisfaction","9":"1","10":"-0.08618640","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"JobLevel","9":"2","10":"0.08071788","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"YearsSinceLastPromotion","9":"0","10":"0.07500153","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"StockOptionLevel","9":"2","10":"0.06491065","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"NumCompaniesWorked","9":"1","10":"0.05740965","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"TrainingTimesLastYear","9":"2","10":"-0.04952162","11":"TrainingTimesLastYear <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"Department","9":"2","10":"0.05013656","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"OverTime","9":"2","10":"-0.21111585","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"YearsSinceLastPromotion","9":"13","10":"-0.10820879","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"TotalWorkingYears","9":"29","10":"0.10405780","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"NumCompaniesWorked","9":"5","10":"-0.10281478","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"YearsAtCompany","9":"27","10":"-0.09912991","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"YearsWithCurrManager","9":"8","10":"0.08141220","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"StockOptionLevel","9":"2","10":"0.06467834","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"Age","9":"50","10":"0.04862310","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"OverTime","9":"1","10":"0.19749229","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"YearsSinceLastPromotion","9":"12","10":"-0.10778861","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"YearsAtCompany","9":"17","10":"-0.09716713","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"TotalWorkingYears","9":"17","10":"0.09421761","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"YearsWithCurrManager","9":"8","10":"0.07543212","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"EducationField","9":"6","10":"-0.06326190","11":"EducationField = Technical Degree","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"NumCompaniesWorked","9":"1","10":"0.06649736","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"YearsInCurrentRole","9":"14","10":"0.06065532","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"OverTime","9":"1","10":"0.21567610","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"JobLevel","9":"2","10":"0.08421874","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"StockOptionLevel","9":"1","10":"-0.07547974","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"YearsSinceLastPromotion","9":"0","10":"0.07646635","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"TotalWorkingYears","9":"6","10":"-0.07183809","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"BusinessTravel","9":"3","10":"-0.06164872","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"NumCompaniesWorked","9":"1","10":"0.05813301","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"Department","9":"2","10":"0.05377398","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"OverTime","9":"1","10":"0.19145442","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"YearsAtCompany","9":"10","10":"-0.09960301","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"JobLevel","9":"2","10":"0.08850849","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"YearsWithCurrManager","9":"9","10":"0.07500301","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"YearsSinceLastPromotion","9":"0","10":"0.06772989","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"JobRole","9":"7","10":"0.05974862","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"Department","9":"2","10":"0.05502639","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"StockOptionLevel","9":"3","10":"0.05205017","11":"StockOptionLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"OverTime","9":"2","10":"-0.20447915","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"YearsAtCompany","9":"11","10":"-0.09211085","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"JobLevel","9":"2","10":"0.08116150","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"YearsInCurrentRole","9":"8","10":"0.07161282","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"NumCompaniesWorked","9":"1","10":"0.06789032","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"TrainingTimesLastYear","9":"4","10":"0.06398690","11":"3 < TrainingTimesLastYear","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"Department","9":"3","10":"-0.05691585","11":"Department = Sales","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"Age","9":"30","10":"-0.04828642","11":"Age <= 30","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"OverTime","9":"1","10":"0.20988334","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"YearsSinceLastPromotion","9":"5","10":"-0.11129368","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"YearsAtCompany","9":"11","10":"-0.08851586","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"JobLevel","9":"2","10":"0.07775001","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"StockOptionLevel","9":"1","10":"-0.07169266","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"NumCompaniesWorked","9":"1","10":"0.06089766","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"RelationshipSatisfaction","9":"1","10":"-0.05273308","11":"RelationshipSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"YearsInCurrentRole","9":"8","10":"0.05491809","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"OverTime","9":"1","10":"0.19939019","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"TotalWorkingYears","9":"30","10":"0.09331137","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"NumCompaniesWorked","9":"9","10":"-0.09004746","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"StockOptionLevel","9":"2","10":"0.06456550","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"JobSatisfaction","9":"4","10":"0.05601829","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"Age","9":"59","10":"0.05684305","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"BusinessTravel","9":"1","10":"0.05042816","11":"BusinessTravel = Non-Travel","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"YearsWithCurrManager","9":"2","10":"-0.04870399","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"OverTime","9":"1","10":"0.20099347","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"TotalWorkingYears","9":"23","10":"0.10291534","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"YearsSinceLastPromotion","9":"12","10":"-0.09788363","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"EnvironmentSatisfaction","9":"1","10":"-0.09336939","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"YearsAtCompany","9":"13","10":"-0.09306942","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"BusinessTravel","9":"3","10":"-0.08895353","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"StockOptionLevel","9":"1","10":"-0.08375397","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"YearsWithCurrManager","9":"8","10":"0.07287783","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"OverTime","9":"2","10":"-0.20023558","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"TotalWorkingYears","9":"25","10":"0.10265154","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"YearsSinceLastPromotion","9":"4","10":"-0.10768062","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"YearsAtCompany","9":"25","10":"-0.08589020","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"BusinessTravel","9":"3","10":"-0.07107338","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"YearsWithCurrManager","9":"12","10":"0.07246382","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"DistanceFromHome","9":"26","10":"-0.06864572","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"YearsInCurrentRole","9":"12","10":"0.06882694","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"OverTime","9":"1","10":"0.20809671","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"YearsAtCompany","9":"10","10":"-0.10803897","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"EnvironmentSatisfaction","9":"1","10":"-0.09252532","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"YearsSinceLastPromotion","9":"0","10":"0.07480982","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"BusinessTravel","9":"3","10":"-0.07366613","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"JobLevel","9":"1","10":"-0.07232053","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"YearsWithCurrManager","9":"9","10":"0.07289851","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"DistanceFromHome","9":"23","10":"-0.06307715","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>plot_features(explanation, ncol = 4)</code></pre>
+<p><img src="05_lime_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<pre class="r"><code>########better plot
+
+plot_explanations(explanation)</code></pre>
+<p><img src="05_lime_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
+<pre class="r"><code>################### Case 1 ########################
+
+
+
+explanation %&gt;% 
+  as.tibble()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["model_type"],"name":[1],"type":["chr"],"align":["left"]},{"label":["case"],"name":[2],"type":["chr"],"align":["left"]},{"label":["label"],"name":[3],"type":["chr"],"align":["left"]},{"label":["label_prob"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["model_r2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["model_intercept"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["model_prediction"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["feature"],"name":[8],"type":["chr"],"align":["left"]},{"label":["feature_value"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["feature_weight"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["feature_desc"],"name":[11],"type":["chr"],"align":["left"]},{"label":["data"],"name":[12],"type":["list"],"align":["right"]},{"label":["prediction"],"name":[13],"type":["list"],"align":["right"]}],"data":[{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"OverTime","9":"2","10":"-0.20486428","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"YearsSinceLastPromotion","9":"0","10":"0.07109702","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"JobLevel","9":"1","10":"-0.06764292","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"JobSatisfaction","9":"1","10":"-0.06005510","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"RelationshipSatisfaction","9":"1","10":"-0.06000070","11":"RelationshipSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"Department","9":"2","10":"0.05710107","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"YearsWithCurrManager","9":"0","10":"-0.05094635","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.6607953","5":"0.2989025","6":"0.8565126","7":"0.5866025","8":"Age","9":"59","10":"0.04540107","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"OverTime","9":"1","10":"0.21173243","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"YearsSinceLastPromotion","9":"4","10":"-0.09735502","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"JobLevel","9":"1","10":"-0.08400073","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"EnvironmentSatisfaction","9":"1","10":"-0.07625257","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"TotalWorkingYears","9":"5","10":"-0.07574521","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"DistanceFromHome","9":"26","10":"-0.06980321","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"NumCompaniesWorked","9":"1","10":"0.06952586","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.7841748","5":"0.3949722","6":"0.7339463","7":"0.6728706","8":"JobRole","9":"7","10":"0.06082273","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"OverTime","9":"1","10":"0.20497952","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"StockOptionLevel","9":"1","10":"-0.07721732","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"YearsSinceLastPromotion","9":"0","10":"0.07488138","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"JobLevel","9":"1","10":"-0.07075761","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"TotalWorkingYears","9":"0","10":"-0.07599451","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"DistanceFromHome","9":"15","10":"-0.07100215","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"TrainingTimesLastYear","9":"6","10":"0.07101654","11":"3 < TrainingTimesLastYear","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.8926522","5":"0.3626150","6":"0.6890182","7":"0.8105311","8":"JobSatisfaction","9":"4","10":"0.06560708","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"OverTime","9":"1","10":"0.19381687","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"YearsSinceLastPromotion","9":"1","10":"0.07709306","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"StockOptionLevel","9":"1","10":"-0.06797084","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"JobSatisfaction","9":"1","10":"-0.06664982","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"JobLevel","9":"1","10":"-0.06599485","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"JobRole","9":"7","10":"0.05305993","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"TrainingTimesLastYear","9":"2","10":"-0.04333310","11":"TrainingTimesLastYear <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.8904643","5":"0.3188251","6":"0.6852564","7":"0.8077155","8":"Department","9":"2","10":"0.04243778","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"OverTime","9":"2","10":"-0.19867139","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"JobLevel","9":"2","10":"0.08488873","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"StockOptionLevel","9":"1","10":"-0.07850999","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"YearsSinceLastPromotion","9":"1","10":"0.07792712","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"JobSatisfaction","9":"4","10":"0.06611461","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"TrainingTimesLastYear","9":"5","10":"0.05351522","11":"3 < TrainingTimesLastYear","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"Department","9":"2","10":"0.05319349","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9638656","5":"0.3491559","6":"0.7467851","7":"0.8555283","8":"EnvironmentSatisfaction","9":"4","10":"0.05028538","11":"EnvironmentSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"OverTime","9":"1","10":"0.19343361","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"TotalWorkingYears","9":"19","10":"0.10171903","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"JobLevel","9":"2","10":"0.08492591","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"YearsSinceLastPromotion","9":"0","10":"0.07542320","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"JobSatisfaction","9":"4","10":"0.07045807","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"StockOptionLevel","9":"2","10":"0.06544543","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"YearsWithCurrManager","9":"0","10":"-0.06336614","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9866127","5":"0.3711042","6":"0.5650298","7":"1.0316023","8":"EducationField","9":"6","10":"-0.06146658","11":"EducationField = Technical Degree","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"OverTime","9":"1","10":"0.21431839","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"YearsSinceLastPromotion","9":"1","10":"0.07199454","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"JobLevel","9":"1","10":"-0.07071811","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"TotalWorkingYears","9":"6","10":"-0.06553926","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"JobRole","9":"7","10":"0.05515336","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"NumCompaniesWorked","9":"1","10":"0.05505231","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"EnvironmentSatisfaction","9":"4","10":"0.04930427","11":"EnvironmentSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9922347","5":"0.3398161","6":"0.6127909","7":"0.9665930","8":"StockOptionLevel","9":"3","10":"0.04423658","11":"StockOptionLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"OverTime","9":"1","10":"-0.20502157","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"YearsSinceLastPromotion","9":"0","10":"-0.07982441","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"EnvironmentSatisfaction","9":"1","10":"0.07770665","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"TotalWorkingYears","9":"1","10":"0.08053787","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"JobLevel","9":"1","10":"0.07473476","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"StockOptionLevel","9":"1","10":"0.07203039","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"DistanceFromHome","9":"25","10":"0.06226196","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7890068","5":"0.3567081","6":"0.2616609","7":"0.4100520","8":"JobInvolvement","9":"1","10":"0.06596546","11":"JobInvolvement = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"OverTime","9":"2","10":"0.21779809","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"TotalWorkingYears","9":"23","10":"-0.10393642","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"EnvironmentSatisfaction","9":"1","10":"0.09510076","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"NumCompaniesWorked","9":"9","10":"0.08927216","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"YearsSinceLastPromotion","9":"0","10":"-0.07927827","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"StockOptionLevel","9":"1","10":"0.07725895","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"Department","9":"2","10":"-0.05601542","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7103710","5":"0.4113936","6":"0.1395525","7":"0.4294231","8":"YearsWithCurrManager","9":"0","10":"0.04967079","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"OverTime","9":"1","10":"0.20305438","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"EnvironmentSatisfaction","9":"1","10":"-0.08618640","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"JobLevel","9":"2","10":"0.08071788","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"YearsSinceLastPromotion","9":"0","10":"0.07500153","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"StockOptionLevel","9":"2","10":"0.06491065","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"NumCompaniesWorked","9":"1","10":"0.05740965","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"TrainingTimesLastYear","9":"2","10":"-0.04952162","11":"TrainingTimesLastYear <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9845330","5":"0.3561694","6":"0.5526285","7":"0.9481512","8":"Department","9":"2","10":"0.05013656","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"OverTime","9":"2","10":"-0.21111585","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"YearsSinceLastPromotion","9":"13","10":"-0.10820879","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"TotalWorkingYears","9":"29","10":"0.10405780","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"NumCompaniesWorked","9":"5","10":"-0.10281478","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"YearsAtCompany","9":"27","10":"-0.09912991","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"YearsWithCurrManager","9":"8","10":"0.08141220","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"StockOptionLevel","9":"2","10":"0.06467834","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.7778451","5":"0.4281342","6":"0.8768128","7":"0.6543150","8":"Age","9":"50","10":"0.04862310","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"OverTime","9":"1","10":"0.19749229","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"YearsSinceLastPromotion","9":"12","10":"-0.10778861","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"YearsAtCompany","9":"17","10":"-0.09716713","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"TotalWorkingYears","9":"17","10":"0.09421761","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"YearsWithCurrManager","9":"8","10":"0.07543212","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"EducationField","9":"6","10":"-0.06326190","11":"EducationField = Technical Degree","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"NumCompaniesWorked","9":"1","10":"0.06649736","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.9415415","5":"0.3739412","6":"0.6576944","7":"0.8837714","8":"YearsInCurrentRole","9":"14","10":"0.06065532","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"OverTime","9":"1","10":"0.21567610","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"JobLevel","9":"2","10":"0.08421874","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"StockOptionLevel","9":"1","10":"-0.07547974","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"YearsSinceLastPromotion","9":"0","10":"0.07646635","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"TotalWorkingYears","9":"6","10":"-0.07183809","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"BusinessTravel","9":"3","10":"-0.06164872","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"NumCompaniesWorked","9":"1","10":"0.05813301","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9419877","5":"0.3759982","6":"0.5886703","7":"0.8679719","8":"Department","9":"2","10":"0.05377398","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"OverTime","9":"1","10":"0.19145442","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"YearsAtCompany","9":"10","10":"-0.09960301","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"JobLevel","9":"2","10":"0.08850849","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"YearsWithCurrManager","9":"9","10":"0.07500301","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"YearsSinceLastPromotion","9":"0","10":"0.06772989","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"JobRole","9":"7","10":"0.05974862","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"Department","9":"2","10":"0.05502639","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9951919","5":"0.3469395","6":"0.5714724","7":"1.0613903","8":"StockOptionLevel","9":"3","10":"0.05205017","11":"StockOptionLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"OverTime","9":"2","10":"-0.20447915","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"YearsAtCompany","9":"11","10":"-0.09211085","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"JobLevel","9":"2","10":"0.08116150","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"YearsInCurrentRole","9":"8","10":"0.07161282","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"NumCompaniesWorked","9":"1","10":"0.06789032","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"TrainingTimesLastYear","9":"4","10":"0.06398690","11":"3 < TrainingTimesLastYear","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"Department","9":"3","10":"-0.05691585","11":"Department = Sales","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9054665","5":"0.3472544","6":"0.8472764","7":"0.7301357","8":"Age","9":"30","10":"-0.04828642","11":"Age <= 30","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"OverTime","9":"1","10":"0.20988334","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"YearsSinceLastPromotion","9":"5","10":"-0.11129368","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"YearsAtCompany","9":"11","10":"-0.08851586","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"JobLevel","9":"2","10":"0.07775001","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"StockOptionLevel","9":"1","10":"-0.07169266","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"NumCompaniesWorked","9":"1","10":"0.06089766","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"RelationshipSatisfaction","9":"1","10":"-0.05273308","11":"RelationshipSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.8884495","5":"0.3976775","6":"0.6938812","7":"0.7730950","8":"YearsInCurrentRole","9":"8","10":"0.05491809","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"OverTime","9":"1","10":"0.19939019","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"TotalWorkingYears","9":"30","10":"0.09331137","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"NumCompaniesWorked","9":"9","10":"-0.09004746","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"StockOptionLevel","9":"2","10":"0.06456550","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"JobSatisfaction","9":"4","10":"0.05601829","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"Age","9":"59","10":"0.05684305","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"BusinessTravel","9":"1","10":"0.05042816","11":"BusinessTravel = Non-Travel","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9961021","5":"0.3320062","6":"0.6380577","7":"1.0198629","8":"YearsWithCurrManager","9":"2","10":"-0.04870399","11":"YearsWithCurrManager <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"OverTime","9":"1","10":"0.20099347","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"TotalWorkingYears","9":"23","10":"0.10291534","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"YearsSinceLastPromotion","9":"12","10":"-0.09788363","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"EnvironmentSatisfaction","9":"1","10":"-0.09336939","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"YearsAtCompany","9":"13","10":"-0.09306942","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"BusinessTravel","9":"3","10":"-0.08895353","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"StockOptionLevel","9":"1","10":"-0.08375397","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.8118522","5":"0.4183685","6":"0.7577906","7":"0.6775473","8":"YearsWithCurrManager","9":"8","10":"0.07287783","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"OverTime","9":"2","10":"-0.20023558","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"TotalWorkingYears","9":"25","10":"0.10265154","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"YearsSinceLastPromotion","9":"4","10":"-0.10768062","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"YearsAtCompany","9":"25","10":"-0.08589020","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"BusinessTravel","9":"3","10":"-0.07107338","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"YearsWithCurrManager","9":"12","10":"0.07246382","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"DistanceFromHome","9":"26","10":"-0.06864572","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9280416","5":"0.3877960","6":"0.9100694","7":"0.6204862","8":"YearsInCurrentRole","9":"12","10":"0.06882694","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"OverTime","9":"1","10":"0.20809671","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"YearsAtCompany","9":"10","10":"-0.10803897","11":"9 < YearsAtCompany","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"EnvironmentSatisfaction","9":"1","10":"-0.09252532","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"YearsSinceLastPromotion","9":"0","10":"0.07480982","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"BusinessTravel","9":"3","10":"-0.07366613","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"JobLevel","9":"1","10":"-0.07232053","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"YearsWithCurrManager","9":"9","10":"0.07289851","11":"7 < YearsWithCurrManager","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.7951238","5":"0.3844444","6":"0.7111531","7":"0.6573301","8":"DistanceFromHome","9":"23","10":"-0.06307715","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>case_1 &lt;- explanation %&gt;%
+  filter(case == 1)
+
+case_1 %&gt;%
+  plot_features()</code></pre>
+<p><img src="05_lime_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
+<pre class="r"><code>  ggplot(data=case_1, aes(x= reorder(feature_desc, abs(feature_weight)), y=feature_weight, fill = ifelse(feature_weight&lt;0, &#39;blue&#39;, &#39;red&#39;))) +
+    geom_col()  + 
+    labs(
+      title = &quot;Case:1&quot;,
+      subtitle = &quot;Label:No&quot;,
+      x=&quot;Features&quot;,
+      y=&quot;Weight&quot;,
+      fill =&quot;&quot;
+    ) + 
+    scale_fill_hue(labels = c(&quot;contradicts&quot;, &quot;supports&quot;)) + coord_flip()</code></pre>
+<p><img src="05_lime_files/figure-html/unnamed-chunk-1-5.png" width="672" /></p>
+<pre class="r"><code>  ################2nd part
+  
+  
+  
+  
+  
+  # heat map
+  level_case &lt;- factor(explanation$case, level = c(&#39;1&#39;:&#39;20&#39;))
+  
+ ggplot(explanation, aes(x=level_case, y=feature_desc, fill= feature_weight)) + 
+    #scale_x_discrete(drop = FALSE) + 
+    labs(
+      x=&quot;Case&quot;,
+      y=&quot;Feature&quot;,
+      fill =&quot;Feature weight&quot;
+    ) + 
+    geom_tile()  + 
+    facet_wrap(~ label)</code></pre>
+<p><img src="05_lime_files/figure-html/unnamed-chunk-1-6.png" width="672" /></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
